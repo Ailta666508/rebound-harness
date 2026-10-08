@@ -22,3 +22,4 @@ benchmarks/local-results/
 benchmarks/**/state/
 playwright-report/
 test-results/
+work/

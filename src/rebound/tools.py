@@ -99,8 +99,16 @@ def docker_tool(image: str = "python:3.12-slim") -> Tool:
 
         async def cleanup():
             if proc.returncode is None:
-                proc.kill()
-                await proc.wait()
+                try:
+                    proc.kill()
+                except ProcessLookupError:
+                    pass
+            # Drain residual pipe data after the client has stopped. Waiting
+            # without draining can deadlock when an output limit paused a pipe.
+            try:
+                await asyncio.wait_for(proc.communicate(), 5)
+            except TimeoutError:
+                pass
             # Killing the Docker client does not kill its remote container.
             remover = await asyncio.create_subprocess_exec("docker", "rm", "-f", container_name,
                 stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
