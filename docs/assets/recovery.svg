@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="580" viewBox="0 0 1280 580" role="img" aria-labelledby="title desc">
+  <title id="title">Evidence policy recovery decisions</title>
+  <desc id="desc">Reuse recorded success. Otherwise a read-only or provider-idempotent operation can be retried within budget. For uncertain writes, accept matching authoritative fresh committed evidence. Insufficient evidence leads to bounded probing and review, not a blind repeat.</desc>
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#6d8b85"/></marker></defs>
+  <rect width="1280" height="580" rx="18" fill="#f6f8f5"/>
+  <g font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif">
+    <text x="42" y="45" font-size="12" font-weight="700" letter-spacing="2" fill="#52746f">RECOVERY POLICY</text>
+    <text x="42" y="83" font-size="29" font-weight="700" fill="#203a3e">Uncertainty needs evidence, not optimism.</text>
+    <text x="42" y="112" font-size="14" fill="#647778">Default policy for an interrupted operation. Experimental baselines use different rules.</text>
+
+    <rect x="42" y="159" width="260" height="71" rx="12" fill="#123a3c"/>
+    <text x="62" y="189" font-size="17" font-weight="700" fill="#f2f7f3">Recorded success exists?</text>
+    <text x="62" y="213" font-size="12" fill="#b0c8c5">Inspect the durable operation journal.</text>
+    <rect x="395" y="159" width="842" height="71" rx="12" fill="#e2eee6" stroke="#b8cfbf"/>
+    <text x="416" y="190" font-size="17" font-weight="700" fill="#176a57">Reuse the stored result</text>
+    <text x="416" y="214" font-size="12" fill="#547369">Continue without dispatching the same logical operation again.</text>
+    <path d="M302 194H384" fill="none" stroke="#6d8b85" stroke-width="2" marker-end="url(#a)"/>
+    <text x="332" y="184" font-size="11" fill="#547369">YES</text>
+    <path d="M172 230V270" fill="none" stroke="#6d8b85" stroke-width="2" marker-end="url(#a)"/>
+    <text x="188" y="256" font-size="11" fill="#647778">NO / UNKNOWN</text>
+
+    <rect x="42" y="282" width="356" height="172" rx="13" fill="#fff" stroke="#ccd8d4"/>
+    <rect x="62" y="302" width="28" height="25" rx="7" fill="#e6efe9"/>
+    <text x="69" y="319" font-size="12" font-weight="700" fill="#52746f">01</text>
+    <text x="101" y="320" font-size="16" font-weight="700" fill="#203a3e">Retry-safe tool contract</text>
+    <text x="62" y="351" font-size="13" fill="#647778">Read-only, or provider-idempotent?</text>
+    <text x="62" y="380" font-size="13" font-weight="600" fill="#176a57">Retry within the attempt budget.</text>
+    <text x="62" y="408" font-size="12" fill="#647778">Keep the same logical operation ID.</text>
+    <text x="62" y="432" font-size="12" fill="#647778">Provider deduplication must really exist.</text>
+
+    <rect x="421" y="282" width="407" height="172" rx="13" fill="#fff" stroke="#ccd8d4"/>
+    <rect x="441" y="302" width="28" height="25" rx="7" fill="#e6efe9"/>
+    <text x="448" y="319" font-size="12" font-weight="700" fill="#52746f">02</text>
+    <text x="480" y="320" font-size="16" font-weight="700" fill="#203a3e">Valid committed evidence</text>
+    <text x="441" y="351" font-size="13" fill="#647778">Correct ID + authority + freshness + result?</text>
+    <text x="441" y="380" font-size="13" font-weight="600" fill="#176a57">Accept confirmation and continue.</text>
+    <text x="441" y="408" font-size="12" fill="#647778">Persist the observed evidence and reason.</text>
+    <text x="441" y="432" font-size="12" fill="#647778">An unrelated or stale receipt cannot certify success.</text>
+
+    <rect x="851" y="282" width="386" height="172" rx="13" fill="#fbf0dc" stroke="#dfcb9d"/>
+    <rect x="871" y="302" width="28" height="25" rx="7" fill="#efdfb9"/>
+    <text x="878" y="319" font-size="12" font-weight="700" fill="#826731">03</text>
+    <text x="910" y="320" font-size="16" font-weight="700" fill="#5e4c2d">Insufficient evidence</text>
+    <text x="871" y="351" font-size="13" fill="#7d6944">Pending, absent, stale, unavailable, or opaque?</text>
+    <text x="871" y="380" font-size="13" font-weight="600" fill="#8c6627">Bounded probe → needs review.</text>
+    <text x="871" y="408" font-size="12" fill="#7d6944">Do not repeat an uncertain non-idempotent write.</text>
+    <text x="871" y="432" font-size="12" fill="#7d6944">A fresh “not found” can still race an in-flight write.</text>
+
+    <path d="M172 270H1044V280M624 270V280" fill="none" stroke="#6d8b85" stroke-width="2"/>
+    <rect x="42" y="489" width="1195" height="51" rx="10" fill="#edf1ec"/>
+    <circle cx="68" cy="514" r="5" fill="#cc9a49"/>
+    <text x="83" y="520" font-size="13" fill="#526c66">Safety is conditional on truthful adapters and durable storage. Stopping for review is measured separately from task completion.</text>
+  </g>
+</svg>

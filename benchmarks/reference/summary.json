@@ -1,0 +1,1215 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "generated_at": "2026-10-08T07:52:16.115310+00:00",
+    "python": "3.12.14",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "packages": {
+      "rebound-harness": "0.1.0",
+      "pydantic": "2.13.5",
+      "langgraph": "1.2.14",
+      "langgraph-checkpoint-sqlite": "3.1.1",
+      "matplotlib": "3.11.2"
+    },
+    "source_sha256": {
+      "benchmark.py": "5ff9dcf2341e5dfea2ad2dbcabe1decf84bfdee871d2bc629a0010667e7d6468",
+      "scenarios.py": "d316599c18c885fc33f77a49edbdc6372536ff3f01067e33399aa5e6208eede4",
+      "runtime.py": "bf48cfbd105c93dbc9cbd74c97feb205ecd4108bce866452f88ee01c3a0adb9e",
+      "models.py": "47633b7a877b3c6cc6865e45a428943392a4dfc23f282bf8b2c85543666bfede",
+      "store.py": "9104c42b31734617f11f25882ae97192e66f64f5616b0a94bf3a4d37b24fbe63",
+      "baselines/langgraph.py": "c7f432d5f3a2ad04d5391b7e39cda43131f72d256f9d1e29c5b02aee3586c9b2"
+    },
+    "mode": "scripted-real-http-fixture",
+    "llm_calls": 0,
+    "llm_tokens": 0,
+    "cost_usd": null,
+    "provider_process_separate": true,
+    "limitations": [
+      "Deterministic scripted tools; no claim about model intelligence or natural-language task success.",
+      "Faults affect transport replies, not provider durability or remote provider crashes.",
+      "Code-build fixtures run trusted local Python subprocesses, not an isolated Docker sandbox.",
+      "Expired-receipt case has a real committed effect; freshness ablation measures policy adherence/liveness, not a demonstrated bad external effect.",
+      "LangGraph comparator implements conservative evidence handling; this is policy portability, not a framework ranking.",
+      "Wilson intervals describe this finite scripted sample; repeated deterministic seeds do not establish general-world statistical superiority."
+    ]
+  },
+  "config": {
+    "seeds": 2,
+    "lengths": [
+      4,
+      16,
+      32
+    ],
+    "families": [
+      "data_artifact",
+      "http_ticket",
+      "code_build"
+    ],
+    "scenarios": [
+      "clean",
+      "lost_ack",
+      "delayed_visibility",
+      "unavailable",
+      "stale_evidence",
+      "no_effect_timeout",
+      "idempotent_lost_ack"
+    ],
+    "policies": [
+      "evidence",
+      "naive",
+      "checkpoint",
+      "idempotent",
+      "verify",
+      "no_freshness",
+      "langgraph_evidence"
+    ],
+    "schedule_seed": 508,
+    "max_attempts": 3,
+    "probe_budget": 3
+  },
+  "trials": 882,
+  "triggered_faults": 756,
+  "expected_faults": 756,
+  "paired_comparisons": 756,
+  "skipped": [],
+  "by_policy": {
+    "evidence": {
+      "trials": 126,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.5714285714285714,
+      "valid_completion_wilson_95": [
+        0.4841686100117506,
+        0.6544619950622212
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 0,
+      "missing_effects": 432,
+      "invalid_effects": 0,
+      "triggered_faults": 108,
+      "expired_receipts_accepted": 0,
+      "mean_probes": 2.0,
+      "mean_tool_calls": 14.047619047619047,
+      "mean_elapsed_ms": 176.0533015873016
+    },
+    "naive": {
+      "trials": 126,
+      "completion_rate": 1.0,
+      "valid_completion_rate": 0.42857142857142855,
+      "valid_completion_wilson_95": [
+        0.3455380049377787,
+        0.5158313899882494
+      ],
+      "review_rate": 0.0,
+      "duplicate_effects": 72,
+      "missing_effects": 0,
+      "invalid_effects": 0,
+      "triggered_faults": 108,
+      "expired_receipts_accepted": 0,
+      "mean_probes": 0.0,
+      "mean_tool_calls": 18.19047619047619,
+      "mean_elapsed_ms": 209.00496031746033
+    },
+    "checkpoint": {
+      "trials": 126,
+      "completion_rate": 0.14285714285714285,
+      "valid_completion_rate": 0.14285714285714285,
+      "valid_completion_wilson_95": [
+        0.09231379654107777,
+        0.21453317808906283
+      ],
+      "review_rate": 0.8571428571428571,
+      "duplicate_effects": 0,
+      "missing_effects": 846,
+      "invalid_effects": 0,
+      "triggered_faults": 108,
+      "expired_receipts_accepted": 0,
+      "mean_probes": 0.0,
+      "mean_tool_calls": 10.761904761904763,
+      "mean_elapsed_ms": 119.46792857142857
+    },
+    "idempotent": {
+      "trials": 126,
+      "completion_rate": 0.2857142857142857,
+      "valid_completion_rate": 0.2857142857142857,
+      "valid_completion_wilson_95": [
+        0.21409189470651802,
+        0.37001629007156633
+      ],
+      "review_rate": 0.7142857142857143,
+      "duplicate_effects": 0,
+      "missing_effects": 708,
+      "invalid_effects": 0,
+      "triggered_faults": 108,
+      "expired_receipts_accepted": 0,
+      "mean_probes": 0.0,
+      "mean_tool_calls": 12.0,
+      "mean_elapsed_ms": 133.12814285714288
+    },
+    "verify": {
+      "trials": 126,
+      "completion_rate": 0.7142857142857143,
+      "valid_completion_rate": 0.5714285714285714,
+      "valid_completion_wilson_95": [
+        0.4841686100117506,
+        0.6544619950622212
+      ],
+      "review_rate": 0.2857142857142857,
+      "duplicate_effects": 18,
+      "missing_effects": 276,
+      "invalid_effects": 0,
+      "triggered_faults": 108,
+      "expired_receipts_accepted": 0,
+      "mean_probes": 1.4285714285714286,
+      "mean_tool_calls": 15.428571428571429,
+      "mean_elapsed_ms": 172.1400634920635
+    },
+    "no_freshness": {
+      "trials": 126,
+      "completion_rate": 0.7142857142857143,
+      "valid_completion_rate": 0.7142857142857143,
+      "valid_completion_wilson_95": [
+        0.6299837099284338,
+        0.785908105293482
+      ],
+      "review_rate": 0.2857142857142857,
+      "duplicate_effects": 0,
+      "missing_effects": 294,
+      "invalid_effects": 0,
+      "triggered_faults": 108,
+      "expired_receipts_accepted": 18,
+      "mean_probes": 1.7142857142857142,
+      "mean_tool_calls": 15.142857142857142,
+      "mean_elapsed_ms": 178.47262698412698
+    },
+    "langgraph_evidence": {
+      "trials": 126,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.5714285714285714,
+      "valid_completion_wilson_95": [
+        0.4841686100117506,
+        0.6544619950622212
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 0,
+      "missing_effects": 432,
+      "invalid_effects": 0,
+      "triggered_faults": 108,
+      "expired_receipts_accepted": 0,
+      "mean_probes": 2.0,
+      "mean_tool_calls": 14.047619047619047,
+      "mean_elapsed_ms": 144.21049206349207
+    }
+  },
+  "by_policy_scenario": {
+    "evidence": {
+      "clean": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 0,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 191.60705555555558
+      },
+      "lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 182.2613888888889
+      },
+      "delayed_visibility": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 211.3017777777778
+      },
+      "unavailable": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 130.7022777777778
+      },
+      "stale_evidence": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 142.37716666666665
+      },
+      "no_effect_timeout": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 156,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 128.33983333333333
+      },
+      "idempotent_lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 245.7836111111111
+      }
+    },
+    "naive": {
+      "clean": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 0,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 191.48816666666667
+      },
+      "lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 18,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 194.28655555555554
+      },
+      "delayed_visibility": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 18,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 200.96955555555556
+      },
+      "unavailable": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 18,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 211.8445
+      },
+      "stale_evidence": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 18,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 205.97372222222222
+      },
+      "no_effect_timeout": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 242.1991111111111
+      },
+      "idempotent_lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 216.27311111111112
+      }
+    },
+    "checkpoint": {
+      "clean": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 0,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 184.0166111111111
+      },
+      "lost_ack": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 112.86
+      },
+      "delayed_visibility": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 111.84011111111111
+      },
+      "unavailable": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 105.04583333333333
+      },
+      "stale_evidence": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 111.01594444444444
+      },
+      "no_effect_timeout": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 156,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 95.53961111111111
+      },
+      "idempotent_lost_ack": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 115.9573888888889
+      }
+    },
+    "idempotent": {
+      "clean": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 0,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 192.1737222222222
+      },
+      "lost_ack": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 126.54922222222223
+      },
+      "delayed_visibility": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 109.39733333333334
+      },
+      "unavailable": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 105.33016666666667
+      },
+      "stale_evidence": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 113.6485
+      },
+      "no_effect_timeout": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 156,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 99.5915
+      },
+      "idempotent_lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 185.20655555555555
+      }
+    },
+    "verify": {
+      "clean": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 0,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 177.67594444444444
+      },
+      "lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 190.23605555555557
+      },
+      "delayed_visibility": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 18,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 188.07655555555556
+      },
+      "unavailable": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 136.61833333333334
+      },
+      "stale_evidence": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 137.5025
+      },
+      "no_effect_timeout": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 18.333333333333332,
+        "mean_elapsed_ms": 182.75177777777776
+      },
+      "idempotent_lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 192.11927777777777
+      }
+    },
+    "no_freshness": {
+      "clean": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 0,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 181.18027777777777
+      },
+      "lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 193.09888888888887
+      },
+      "delayed_visibility": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 212.97050000000002
+      },
+      "unavailable": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 138.05422222222222
+      },
+      "stale_evidence": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 18,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 189.47422222222224
+      },
+      "no_effect_timeout": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 156,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 140.4745
+      },
+      "idempotent_lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 194.05577777777776
+      }
+    },
+    "langgraph_evidence": {
+      "clean": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 0,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 0.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 135.94772222222224
+      },
+      "lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 142.4811111111111
+      },
+      "delayed_visibility": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 174.18405555555557
+      },
+      "unavailable": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 126.60455555555556
+      },
+      "stale_evidence": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 138,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 127.73238888888889
+      },
+      "no_effect_timeout": {
+        "trials": 18,
+        "completion_rate": 0.0,
+        "valid_completion_rate": 0.0,
+        "valid_completion_wilson_95": [
+          0.0,
+          0.17587922364664965
+        ],
+        "review_rate": 1.0,
+        "duplicate_effects": 0,
+        "missing_effects": 156,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 3.0,
+        "mean_tool_calls": 9.666666666666666,
+        "mean_elapsed_ms": 119.95277777777778
+      },
+      "idempotent_lost_ack": {
+        "trials": 18,
+        "completion_rate": 1.0,
+        "valid_completion_rate": 1.0,
+        "valid_completion_wilson_95": [
+          0.8241207763533505,
+          1.0
+        ],
+        "review_rate": 0.0,
+        "duplicate_effects": 0,
+        "missing_effects": 0,
+        "invalid_effects": 0,
+        "triggered_faults": 18,
+        "expired_receipts_accepted": 0,
+        "mean_probes": 1.0,
+        "mean_tool_calls": 17.333333333333332,
+        "mean_elapsed_ms": 182.57083333333333
+      }
+    }
+  },
+  "by_family": {
+    "data_artifact": {
+      "trials": 294,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.46938775510204084,
+      "valid_completion_wilson_95": [
+        0.41310379217005616,
+        0.5264613708825585
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 30,
+      "missing_effects": 996,
+      "invalid_effects": 0,
+      "triggered_faults": 252,
+      "expired_receipts_accepted": 6,
+      "mean_probes": 1.0204081632653061,
+      "mean_tool_calls": 14.231292517006803,
+      "mean_elapsed_ms": 69.95443197278911
+    },
+    "http_ticket": {
+      "trials": 294,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.46938775510204084,
+      "valid_completion_wilson_95": [
+        0.41310379217005616,
+        0.5264613708825585
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 30,
+      "missing_effects": 996,
+      "invalid_effects": 0,
+      "triggered_faults": 252,
+      "expired_receipts_accepted": 6,
+      "mean_probes": 1.0204081632653061,
+      "mean_tool_calls": 14.231292517006803,
+      "mean_elapsed_ms": 68.48456462585034
+    },
+    "code_build": {
+      "trials": 294,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.46938775510204084,
+      "valid_completion_wilson_95": [
+        0.41310379217005616,
+        0.5264613708825585
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 30,
+      "missing_effects": 996,
+      "invalid_effects": 0,
+      "triggered_faults": 252,
+      "expired_receipts_accepted": 6,
+      "mean_probes": 1.0204081632653061,
+      "mean_tool_calls": 14.231292517006803,
+      "mean_elapsed_ms": 346.9085102040816
+    }
+  },
+  "by_length": {
+    "4": {
+      "trials": 294,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.46938775510204084,
+      "valid_completion_wilson_95": [
+        0.41310379217005616,
+        0.5264613708825585
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 30,
+      "missing_effects": 156,
+      "invalid_effects": 0,
+      "triggered_faults": 252,
+      "expired_receipts_accepted": 6,
+      "mean_probes": 1.0204081632653061,
+      "mean_tool_calls": 3.7551020408163267,
+      "mean_elapsed_ms": 54.10366666666666
+    },
+    "16": {
+      "trials": 294,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.46938775510204084,
+      "valid_completion_wilson_95": [
+        0.41310379217005616,
+        0.5264613708825585
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 30,
+      "missing_effects": 912,
+      "invalid_effects": 0,
+      "triggered_faults": 252,
+      "expired_receipts_accepted": 6,
+      "mean_probes": 1.0204081632653061,
+      "mean_tool_calls": 13.183673469387756,
+      "mean_elapsed_ms": 147.27355442176872
+    },
+    "32": {
+      "trials": 294,
+      "completion_rate": 0.5714285714285714,
+      "valid_completion_rate": 0.46938775510204084,
+      "valid_completion_wilson_95": [
+        0.41310379217005616,
+        0.5264613708825585
+      ],
+      "review_rate": 0.42857142857142855,
+      "duplicate_effects": 30,
+      "missing_effects": 1920,
+      "invalid_effects": 0,
+      "triggered_faults": 252,
+      "expired_receipts_accepted": 6,
+      "mean_probes": 1.0204081632653061,
+      "mean_tool_calls": 25.755102040816325,
+      "mean_elapsed_ms": 283.9702857142857
+    }
+  },
+  "reproduce": "python -c \"from pathlib import Path; from rebound.benchmark import run_suite; run_suite(Path('benchmarks/reproduced'), seeds=2, lengths=[4, 16, 32], families=['data_artifact', 'http_ticket', 'code_build'], scenarios=['clean', 'lost_ack', 'delayed_visibility', 'unavailable', 'stale_evidence', 'no_effect_timeout', 'idempotent_lost_ack'], policies=['evidence', 'naive', 'checkpoint', 'idempotent', 'verify', 'no_freshness', 'langgraph_evidence'])\"",
+  "chart_generated": true
+}

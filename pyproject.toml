@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rebound-harness"
+version = "0.1.0"
+description = "Evidence-aware recovery and reproducible fault evaluation for long-running tool agents"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+authors = [{name = "Ailta666508"}]
+keywords = ["agents", "harness", "recovery", "fault-injection", "evaluation"]
+dependencies = [
+  "pydantic>=2.10,<3", "httpx>=0.28,<1", "typer>=0.16,<1", "rich>=13,<15",
+  "fastapi>=0.115,<1", "uvicorn>=0.34,<1", "filelock>=3.16,<4"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pytest-asyncio>=0.25,<2", "hypothesis>=6,<7", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1,<2"]
+benchmark = ["langgraph>=1,<2", "langgraph-checkpoint-sqlite>=3,<4", "matplotlib>=3.9,<4"]
+mcp = ["mcp==2.3.0"]
+
+[project.scripts]
+rebound = "rebound.cli:app"
+
+[project.urls]
+Repository = "https://github.com/Ailta666508/rebound-harness"
+Issues = "https://github.com/Ailta666508/rebound-harness/issues"
+
+[tool.hatch.build]
+artifacts = ["src/rebound/static/**"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rebound"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+check_untyped_defs = true

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+  <title id="title">Rebound Harness</title>
+  <desc id="desc">Recover with evidence. A durable agent harness for uncertain tool outcomes, illustrated by a interrupted path that resumes after verification.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101f2b"/><stop offset="1" stop-color="#132e39"/></linearGradient>
+    <linearGradient id="path" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#56d1b2"/><stop offset="1" stop-color="#a7edd4"/></linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#86acb5" stroke-opacity=".08"/></pattern>
+  </defs>
+  <rect width="1280" height="400" rx="22" fill="url(#bg)"/>
+  <rect width="1280" height="400" rx="22" fill="url(#grid)"/>
+  <path d="M0 374H1280" stroke="#7aa59e" stroke-opacity=".15"/>
+  <g font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif">
+    <rect x="56" y="45" width="200" height="29" rx="14.5" fill="#1c3c44" stroke="#3b6c6b"/>
+    <circle cx="74" cy="59.5" r="4" fill="#81e0bf"/>
+    <text x="88" y="64" font-size="11" font-weight="700" letter-spacing="1.6" fill="#ade8d9">DURABLE AGENT EXECUTION</text>
+    <text x="54" y="149" font-size="62" font-weight="750" letter-spacing="-2.5" fill="#f2f5ef">Rebound Harness</text>
+    <text x="57" y="200" font-size="28" font-weight="500" fill="#a5e9d2">Recover with evidence.</text>
+    <text x="57" y="242" font-size="17" fill="#a8b9c1">Durable execution. Explicit uncertainty. Inspectable decisions.</text>
+    <g font-size="12" font-weight="650" letter-spacing="1.1" fill="#b5c9ca">
+      <text x="58" y="333">JOURNAL</text><text x="173" y="333" fill="#527c7d">/</text>
+      <text x="196" y="333">RECONCILE</text><text x="337" y="333" fill="#527c7d">/</text>
+      <text x="360" y="333">RESUME</text>
+    </g>
+    <g transform="translate(815 75)">
+      <rect x="0" y="0" width="410" height="250" rx="18" fill="#112731" stroke="#42636a"/>
+      <text x="23" y="33" fill="#8eaab2" font-size="11" font-weight="600" letter-spacing="1.8">ONE OPERATION · ONE INTENT</text>
+      <path d="M35 98H137" fill="none" stroke="url(#path)" stroke-width="4"/>
+      <path d="M158 98H209" fill="none" stroke="#d7a65e" stroke-width="3" stroke-dasharray="5 6"/>
+      <path d="M221 98V162Q221 178 237 178H318Q334 178 334 162V98H378" fill="none" stroke="url(#path)" stroke-width="4"/>
+      <circle cx="35" cy="98" r="8" fill="#86e1c0"/>
+      <circle cx="137" cy="98" r="8" fill="#86e1c0"/>
+      <rect x="207" y="84" width="28" height="28" rx="6" fill="#403827" stroke="#d7a65e"/>
+      <path d="M218 90L215 99H222L219 107" fill="none" stroke="#ecc583" stroke-width="2"/>
+      <circle cx="276" cy="178" r="15" fill="#244d47" stroke="#86e1c0"/>
+      <path d="M269 178L274 183L283 173" fill="none" stroke="#a3eed2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="378" cy="98" r="8" fill="#86e1c0"/>
+      <text x="19" y="129" font-size="11" fill="#9bb6bc">intent</text>
+      <text x="121" y="129" font-size="11" fill="#9bb6bc">effect</text>
+      <text x="188" y="68" font-size="11" fill="#e5bd7d">lost reply</text>
+      <text x="350" y="129" font-size="11" fill="#bcebd9">resume</text>
+      <text x="241" y="215" font-size="12" font-weight="600" fill="#a5e9d2">verify evidence</text>
+    </g>
+  </g>
+</svg>
