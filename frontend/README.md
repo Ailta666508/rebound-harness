@@ -74,6 +74,10 @@ or `BASE_URL=http://127.0.0.1:5173` to verify the development proxy. To use an
 existing browser binary, set `BROWSER_EXECUTABLE` to its executable path. Every
 run creates an isolated browser context; no existing profile is used.
 
+Desktop captures use a fixed 1440 × 900 viewport for the trace, operations, and
+review views. The smoke check verifies matching panel edges and independent
+table/detail scrolling, with separate short-window and mobile checks.
+
 Set `QA_SCREENSHOT_DIR` to an output directory to additionally render the
 authored documentation SVGs and reference benchmark chart into review PNGs.
 This is optional and does not alter the original diagrams. CI uploads these

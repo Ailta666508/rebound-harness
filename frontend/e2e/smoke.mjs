@@ -199,6 +199,32 @@ try {
     .last()
     .click();
   await assertDesktopLayout();
+  const firstRowOffset = await page
+    .locator(".table-scroll")
+    .evaluate((scroller) => {
+      const row = Array.from(scroller.querySelectorAll("tbody tr")).find(
+        (row) =>
+          row.querySelector(".event-select")?.textContent?.trim() ===
+          "operation · unknown",
+      );
+      const heading = scroller.querySelector("thead th");
+      if (!row || !heading)
+        throw new Error(
+          "Expected the uncertain operation and sticky table heading",
+        );
+      // Position an actual journal row immediately below the sticky heading.
+      // The selected recovery decision remains visible later in the same trace.
+      scroller.scrollTop +=
+        row.getBoundingClientRect().top -
+        heading.getBoundingClientRect().bottom;
+      return (
+        row.getBoundingClientRect().top - heading.getBoundingClientRect().bottom
+      );
+    });
+  assert.ok(
+    Math.abs(firstRowOffset) < 1,
+    "First visible trace row must not be clipped by the heading",
+  );
   assert.equal(
     await page
       .locator(".table-scroll")
@@ -219,11 +245,21 @@ try {
   });
   await page.getByRole("tab", { name: "Operations", exact: true }).click();
   await assertDesktopLayout();
+  assert.equal(
+    await page.locator(".table-scroll").evaluate((node) => node.scrollTop),
+    0,
+    "A new tab must start at its first row",
+  );
   await page.screenshot({
     path: resolve(output, "inspector-operations.png"),
     fullPage: false,
   });
   await page.getByRole("tab", { name: "Execution trace", exact: true }).click();
+  assert.equal(
+    await page.locator(".table-scroll").evaluate((node) => node.scrollTop),
+    0,
+    "Returning to the trace must reset its scroll offset",
+  );
   assert.equal(
     await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth,

@@ -903,6 +903,7 @@ export default function App() {
                   </div>
                   {tab === "trace" ? (
                     <div
+                      key={`${run.id}:trace`}
                       className="journal-tab"
                       role="tabpanel"
                       id="trace-panel"
@@ -1019,6 +1020,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div
+                      key={`${run.id}:operations`}
                       className="journal-tab"
                       role="tabpanel"
                       id="operations-panel"
