@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Replace the README banner with a standalone return-arrow mark and centered title.
+- Redesign the inspector as a compact light interface with aligned, independently
+  scrolling panels and consistent desktop screenshot dimensions.
+
 ## 0.1.0 — 2026-10-08
 
 First public release of Rebound Harness.

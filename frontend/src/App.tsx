@@ -21,7 +21,6 @@ import {
   LoaderCircle,
   Play,
   Plus,
-  Radio,
   RefreshCw,
   RotateCcw,
   SearchCheck,
@@ -113,7 +112,6 @@ function Dialog({
     >
       <div className="modal-heading">
         <div>
-          <span className="eyebrow">LOCAL LABORATORY</span>
           <h2>{title}</h2>
         </div>
         <button
@@ -144,10 +142,10 @@ function CreateDialog({
   const [policy, setPolicy] = useState("evidence");
   const [steps, setSteps] = useState(8);
   return (
-    <Dialog title="Put recovery to the test." onClose={onClose}>
+    <Dialog title="New experiment" onClose={onClose}>
       <p className="modal-description">
-        Choose an interruption. Rebound writes a real local journal against a
-        simulated provider. No model key required.
+        Run a fault scenario against a simulated provider. Results are saved to
+        the local journal. No model API key is required.
       </p>
       <form
         onSubmit={(event) => {
@@ -256,7 +254,7 @@ function ResolveDialog({
     }
   }
   return (
-    <Dialog title="Record a human confirmation." onClose={onClose}>
+    <Dialog title="Confirm an operation result" onClose={onClose}>
       <p className="modal-description">
         Confirm only after independently checking the provider. This records the
         result for <code>{operation.step_key}</code> and may allow the run to
@@ -350,95 +348,100 @@ function EventDetail({
         : null;
   const reason = payload.reason ?? payload.message ?? payload.error;
   return (
-    <section className="detail-panel">
-      <div className="panel-title">
-        <span className="eyebrow">INSPECT THE DECISION</span>
-        <SearchCheck size={20} />
+    <section className="detail-panel" aria-label="Event details">
+      <div className="panel-heading">
+        <h2>Event details</h2>
+        <span className="count-label">
+          {event ? `#${event.seq}` : "No selection"}
+        </span>
       </div>
-      <h3>{event ? label(event.kind) : "Evidence comes first."}</h3>
-      <p className="detail-intro">
-        {reason
-          ? String(reason)
-          : event
-            ? "The journal records the inputs and outcome behind this transition."
-            : "Select a trace event to inspect its recorded evidence and operation."}
-      </p>
-      {event ? (
-        <>
-          <dl className="detail-facts">
-            <div>
-              <dt>Event sequence</dt>
-              <dd>#{String(event.seq).padStart(3, "0")}</dd>
+      <div className="detail-scroll">
+        {event ? (
+          <>
+            <div className="detail-title">
+              <h3>{event.kind}</h3>
+              {payload.action ? (
+                <span className="decision-action">
+                  {String(payload.action)}
+                </span>
+              ) : null}
             </div>
-            <div>
-              <dt>Recorded at</dt>
-              <dd>{displayTime(event.created_at)}</dd>
-            </div>
-            <div>
-              <dt>Operation</dt>
-              <dd title={event.operation_id ?? undefined}>
-                {operation?.step_key ??
-                  event.operation_id?.slice(0, 12) ??
-                  "Run lifecycle"}
-              </dd>
-            </div>
-            {operation ? (
+            {reason ? <p className="detail-intro">{String(reason)}</p> : null}
+            <dl className="detail-facts">
               <div>
-                <dt>Tool</dt>
-                <dd>{operation.tool}</dd>
+                <dt>Timestamp</dt>
+                <dd>{displayTime(event.created_at)}</dd>
               </div>
+              <div>
+                <dt>Operation</dt>
+                <dd title={event.operation_id ?? undefined}>
+                  {operation?.step_key ?? "Run lifecycle"}
+                </dd>
+              </div>
+              {operation ? (
+                <>
+                  <div>
+                    <dt>Tool</dt>
+                    <dd>{operation.tool}</dd>
+                  </div>
+                  <div>
+                    <dt>Status</dt>
+                    <dd>
+                      <Badge status={operation.status} />
+                    </dd>
+                  </div>
+                </>
+              ) : null}
+            </dl>
+            {evidence ? (
+              <section className="evidence-block">
+                <h3>
+                  <ShieldCheck size={14} />
+                  Recorded evidence
+                </h3>
+                <dl>
+                  {[
+                    "status",
+                    "source",
+                    "authoritative",
+                    "final",
+                    "operation_id",
+                  ].map((key) =>
+                    evidence[key] !== undefined ? (
+                      <div key={key}>
+                        <dt>{label(key)}</dt>
+                        <dd>{String(evidence[key])}</dd>
+                      </div>
+                    ) : null,
+                  )}
+                </dl>
+              </section>
             ) : null}
-          </dl>
-          {evidence ? (
-            <div className="evidence-block">
-              <div className="evidence-title">
-                <ShieldCheck size={17} />
-                Recorded evidence
-              </div>
-              <dl>
-                {[
-                  "status",
-                  "source",
-                  "authoritative",
-                  "final",
-                  "operation_id",
-                ].map((key) =>
-                  evidence[key] !== undefined ? (
-                    <div key={key}>
-                      <dt>{label(key)}</dt>
-                      <dd>{String(evidence[key])}</dd>
-                    </div>
-                  ) : null,
-                )}
-              </dl>
-            </div>
-          ) : null}
-          <details className="json-disclosure" open>
-            <summary>
-              <FileJson size={15} />
-              Event payload
-            </summary>
-            <pre>{JSON.stringify(payload, null, 2)}</pre>
-          </details>
-          {operation?.result ? (
-            <details className="json-disclosure">
+            <details className="json-disclosure" open>
               <summary>
-                <Code2 size={15} />
-                Recorded result
+                <FileJson size={14} />
+                Event payload
               </summary>
-              <pre>{JSON.stringify(operation.result, null, 2)}</pre>
+              <pre>{JSON.stringify(payload, null, 2)}</pre>
             </details>
-          ) : null}
-        </>
-      ) : (
-        <div className="evidence-placeholder">
-          <SearchCheck size={36} strokeWidth={1.2} />
-          <span>Observation → decision → action</span>
-        </div>
-      )}
-      <div className="principle">
-        <GitBranch size={18} />
-        <p>An interruption is an unknown outcome. Recovery needs evidence.</p>
+            {operation?.result ? (
+              <details className="json-disclosure">
+                <summary>
+                  <Code2 size={14} />
+                  Recorded result
+                </summary>
+                <pre>{JSON.stringify(operation.result, null, 2)}</pre>
+              </details>
+            ) : null}
+          </>
+        ) : (
+          <p className="panel-empty">
+            Select an event to view its payload and recovery evidence.
+          </p>
+        )}
+      </div>
+      <div className="panel-footer">
+        Read-only view of the persisted journal
       </div>
     </section>
   );
@@ -631,33 +634,38 @@ export default function App() {
     <div className="app-shell">
       <aside className="sidebar">
         <a className="brand" href="/" aria-label="Rebound home">
-          <span className="brand-mark">
-            <RotateCcw size={26} strokeWidth={2.7} />
-          </span>
-          <div>
-            rebound<span>HARNESS / 0.1</span>
-          </div>
+          <svg className="brand-mark" viewBox="0 0 128 128" aria-hidden="true">
+            <path
+              d="M43 14 13 44 43 74 54 63 43 52H75a18 18 0 0 1 0 36H45v16h30a34 34 0 0 0 0-68H43l11-11Z"
+              transform="translate(6 7)"
+              fill="#e8e6ff"
+            />
+            <path
+              d="M43 14 13 44 43 74 54 63 43 52H75a18 18 0 0 1 0 36H45v16h30a34 34 0 0 0 0-68H43l11-11Z"
+              fill="#635bff"
+            />
+          </svg>
+          <strong>Rebound</strong>
+          <span className="version">v0.1</span>
         </a>
         <div className="workspace">
-          <span className="workspace-icon">
-            <Terminal size={17} />
-          </span>
-          <div>
-            Local workspace<small>Durable execution lab</small>
-          </div>
+          <Terminal size={16} />
+          <span>Local workspace</span>
           <span className="live-dot" />
         </div>
-        <button
-          className="new-run"
-          disabled={busy}
-          onClick={() => setCreating(true)}
-        >
-          <Plus size={17} />
-          New experiment
-        </button>
+        <div className="sidebar-actions">
+          <button
+            className="new-run"
+            disabled={busy}
+            onClick={() => setCreating(true)}
+          >
+            <Plus size={15} />
+            New experiment
+          </button>
+        </div>
         <div className="sidebar-section">
-          <span>RECENT RUNS</span>
-          <span>{runs.length.toString().padStart(2, "0")}</span>
+          <span>Runs</span>
+          <span>{runs.length}</span>
         </div>
         <nav className="run-list" aria-label="Runs">
           {runs.map((item) => (
@@ -675,105 +683,88 @@ export default function App() {
               <span className="run-item-text">
                 <strong>{item.title}</strong>
                 <small>
-                  {item.id.slice(0, 8)}
+                  {item.id.slice(0, 12)}
                   <span>·</span>
                   {label(item.status)}
                 </small>
               </span>
-              {selectedId === item.id ? <ChevronRight size={14} /> : null}
             </button>
           ))}
           {runs.length === 0 ? (
-            <p className="empty-runs">
-              Your experiments will appear here. Create a run to begin.
-            </p>
+            <p className="empty-runs">No runs yet.</p>
           ) : null}
         </nav>
         <div className="sidebar-bottom">
-          <div className="local-card">
-            <ShieldCheck size={19} />
-            <div>
-              Local by design<span>Journal stored on your machine.</span>
-            </div>
-          </div>
           <a
             href="https://github.com/Ailta666508/rebound-harness"
             target="_blank"
             rel="noreferrer"
           >
+            <Code2 size={14} />
             Source & documentation
-            <ArrowRight size={14} />
+            <ArrowRight size={13} />
           </a>
-          <span className="sidebar-credit">BUILT TO RECOVER.</span>
+          <div>
+            <span className="live-dot" />
+            Local storage · SQLite
+          </div>
         </div>
       </aside>
-
       <main>
         <header className="topbar">
           <div>
-            <Layers3 size={17} />
             <span>Workspace</span>
             <ChevronRight size={14} />
-            <strong>Recovery inspector</strong>
+            <h1>Recovery inspector</h1>
           </div>
-          <span className="local-badge">
-            <span className="live-dot" />
-            LOCAL SESSION
-          </span>
+          <a href="/docs" target="_blank" rel="noreferrer">
+            API reference
+            <ArrowRight size={13} />
+          </a>
         </header>
         <div className="content">
-          <div className="page-heading">
-            <div>
-              <span className="eyebrow">EXECUTION OBSERVATORY</span>
-              <h1>
-                Recovery, with receipts<span>.</span>
-              </h1>
-              <p>See what happened. Understand why it is safe to continue.</p>
-            </div>
-            <div className="simulated-badge">
-              <FlaskConical size={16} />
-              <span>
-                {!run || run.metadata.simulated
-                  ? "Simulated provider"
-                  : "Live tool run"}
-                <small>Real execution journal</small>
-              </span>
-            </div>
+          <div className="workspace-summary">
+            <p>Execution history, tool outcomes, and recovery decisions.</p>
+            <span className="simulated-badge">
+              <FlaskConical size={13} />
+              {!run || run.metadata.simulated
+                ? "Simulated provider"
+                : "Live tool run"}
+            </span>
           </div>
           {error ? (
             <div className="error-banner" role="alert">
-              <CircleHelp size={18} />
+              <CircleHelp size={16} />
               <span>{error}</span>
               <button onClick={() => setError("")} aria-label="Dismiss error">
-                <X size={17} />
+                <X size={16} />
               </button>
             </div>
           ) : null}
           {loading ? (
             <div className="loading-state" role="status">
-              <LoaderCircle className="spinning" size={24} />
-              <span>Reading the journal…</span>
+              <LoaderCircle className="spinning" size={20} />
+              Reading the journal…
             </div>
           ) : run ? (
             <>
               <section className="run-header">
-                <div>
-                  <div className="run-overline">
-                    <span>RUN / {run.id.slice(0, 8)}</span>
+                <div className="run-summary">
+                  <div className="run-title">
+                    <h2>{run.title}</h2>
                     <Badge status={run.status} />
                   </div>
-                  <h2>{run.title}</h2>
                   <p>
-                    Created {new Date(run.created_at * 1000).toLocaleString()}
-                    <span className="separator">/</span>
-                    {run.steps.length} planned operations
-                    <span className="separator">/</span>
+                    <code>{run.id.slice(0, 16)}</code>
+                    <span className="separator">·</span>
+                    {new Date(run.created_at * 1000).toLocaleString()}
+                    <span className="separator">·</span>
                     {label(String(run.metadata.policy ?? "custom"))} policy
                   </p>
                 </div>
                 <div className="run-actions">
                   <button className="button secondary" onClick={download}>
-                    <ArrowDownToLine size={16} />
+                    <ArrowDownToLine size={14} />
                     Export trace
                   </button>
                   <button
@@ -786,9 +777,9 @@ export default function App() {
                     }
                   >
                     {busy ? (
-                      <LoaderCircle size={16} className="spinning" />
+                      <LoaderCircle size={14} className="spinning" />
                     ) : (
-                      <RotateCcw size={16} />
+                      <RotateCcw size={14} />
                     )}
                     {isDone(run.status)
                       ? "Run complete"
@@ -807,8 +798,8 @@ export default function App() {
                       <small> / {run.steps.length}</small>
                     </>
                   }
-                  detail="Confirmed outcomes in the journal"
-                  icon={<Check size={16} />}
+                  detail="Confirmed outcomes"
+                  icon={<Check size={14} />}
                 />
                 <Metric
                   title="Execution attempts"
@@ -816,14 +807,14 @@ export default function App() {
                     (sum, operation) => sum + operation.attempts,
                     0,
                   )}
-                  detail="All recorded dispatch attempts"
-                  icon={<RefreshCw size={16} />}
+                  detail="Recorded dispatches"
+                  icon={<RefreshCw size={14} />}
                 />
                 <Metric
                   title="Evidence probes"
                   value={probes}
-                  detail="Recorded attempts to verify an outcome"
-                  icon={<SearchCheck size={16} />}
+                  detail="Outcome verification attempts"
+                  icon={<SearchCheck size={14} />}
                 />
                 <Metric
                   title="Duplicate effects"
@@ -833,11 +824,32 @@ export default function App() {
                       : "—"
                   }
                   detail="Provider oracle · simulated runs only"
-                  icon={<ShieldCheck size={16} />}
+                  icon={<ShieldCheck size={14} />}
                 />
               </section>
+              {run.status === "needs_review" || run.status === "interrupted" ? (
+                <div className="review-note">
+                  <CircleHelp size={16} />
+                  <p>
+                    <strong>
+                      {run.status === "needs_review"
+                        ? "This run needs a confirmed outcome."
+                        : "This run was interrupted."}
+                    </strong>
+                    Resume to check again, or inspect an operation and confirm
+                    its result.
+                  </p>
+                  <button
+                    className="text-button"
+                    onClick={() => setTab("operations")}
+                  >
+                    Inspect operations
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
+              ) : null}
               <div className="inspector-grid">
-                <section className="trace-panel">
+                <section className="trace-panel" aria-label="Run journal">
                   <div className="trace-heading">
                     <div
                       role="tablist"
@@ -866,7 +878,7 @@ export default function App() {
                         onClick={() => setTab("trace")}
                         className={tab === "trace" ? "selected" : ""}
                       >
-                        <GitBranch size={16} />
+                        <GitBranch size={14} />
                         Execution trace
                       </button>
                       <button
@@ -878,27 +890,28 @@ export default function App() {
                         onClick={() => setTab("operations")}
                         className={tab === "operations" ? "selected" : ""}
                       >
-                        <Layers3 size={16} />
+                        <Layers3 size={14} />
                         Operations
                       </button>
                     </div>
-                    <span className="trace-count">
+                    <span className="count-label">
                       {tab === "trace"
                         ? run.events.length
                         : run.operations.length}{" "}
-                      recorded
+                      records
                     </span>
                   </div>
                   {tab === "trace" ? (
                     <div
+                      className="journal-tab"
                       role="tabpanel"
                       id="trace-panel"
                       aria-labelledby="trace-tab"
                     >
                       <div className="trace-toolbar">
                         <span>
-                          <Clock3 size={14} />
-                          Ordered by journal sequence
+                          <Clock3 size={13} />
+                          Journal sequence
                         </span>
                         <label className="sr-only" htmlFor="event-filter">
                           Filter events
@@ -914,121 +927,194 @@ export default function App() {
                           <option value="recovery">Recovery events</option>
                         </select>
                       </div>
-                      <div className="timeline">
-                        {filteredEvents.map((event) => {
-                          const attention =
-                            /unknown|fault|review|interrupt|error/.test(
-                              event.kind,
-                            );
-                          const recovery =
-                            /decision|evidence|probe|recover/.test(event.kind);
-                          const op = run.operations.find(
-                            (operation) => operation.id === event.operation_id,
-                          );
-                          return (
-                            <button
-                              key={event.seq}
-                              className={`trace-event ${selectedEvent?.seq === event.seq ? "selected" : ""} ${attention ? "event-attention" : recovery ? "event-recovery" : ""}`}
-                              onClick={() => setEventSeq(event.seq)}
-                              aria-pressed={selectedEvent?.seq === event.seq}
-                            >
-                              <span className="trace-rail">
-                                <span className="event-symbol">
-                                  {attention ? (
-                                    <Radio size={14} />
-                                  ) : recovery ? (
-                                    <SearchCheck size={14} />
-                                  ) : /commit|complete/.test(event.kind) ? (
-                                    <Check size={14} />
-                                  ) : (
-                                    <span />
-                                  )}
-                                </span>
-                              </span>
-                              <span className="event-body">
-                                <span className="event-heading">
-                                  <strong>{label(event.kind)}</strong>
-                                  <time>{displayTime(event.created_at)}</time>
-                                </span>
-                                <span className="event-subtitle">
-                                  {op?.step_key ?? "run"}
-                                  <span>·</span>
-                                  {String(
-                                    event.payload.reason ??
-                                      event.payload.point ??
-                                      op?.tool ??
-                                      "lifecycle transition",
-                                  )}
-                                </span>
-                              </span>
-                              <span className="event-seq">
-                                {String(event.seq).padStart(3, "0")}
-                              </span>
-                            </button>
-                          );
-                        })}
+                      <div className="table-scroll">
+                        <table className="event-table">
+                          <caption className="sr-only">
+                            Recorded execution events
+                          </caption>
+                          <colgroup>
+                            <col className="col-sequence" />
+                            <col className="col-event" />
+                            <col className="col-operation" />
+                            <col className="col-time" />
+                            <col />
+                          </colgroup>
+                          <thead>
+                            <tr>
+                              <th scope="col">Seq</th>
+                              <th scope="col">Event</th>
+                              <th scope="col">Operation</th>
+                              <th scope="col">Time</th>
+                              <th scope="col">Details</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredEvents.map((event) => {
+                              const attention =
+                                /unknown|fault|review|interrupt|error/.test(
+                                  event.kind,
+                                );
+                              const op = run.operations.find(
+                                (operation) =>
+                                  operation.id === event.operation_id,
+                              );
+                              const reason = String(
+                                event.payload.reason ??
+                                  event.payload.point ??
+                                  op?.tool ??
+                                  "Run lifecycle",
+                              );
+                              return (
+                                <tr
+                                  key={event.seq}
+                                  className={
+                                    selectedEvent?.seq === event.seq
+                                      ? "selected"
+                                      : ""
+                                  }
+                                >
+                                  <td className="mono secondary-text">
+                                    {String(event.seq).padStart(3, "0")}
+                                  </td>
+                                  <td>
+                                    <button
+                                      className="event-select"
+                                      onClick={() => setEventSeq(event.seq)}
+                                      aria-pressed={
+                                        selectedEvent?.seq === event.seq
+                                      }
+                                    >
+                                      <span
+                                        className={`event-dot ${attention ? "warning" : ""}`}
+                                      />
+                                      {label(event.kind)}
+                                    </button>
+                                  </td>
+                                  <td className="mono">
+                                    {op?.step_key ?? "—"}
+                                  </td>
+                                  <td className="mono secondary-text">
+                                    {displayTime(event.created_at)}
+                                  </td>
+                                  <td className="cell-summary" title={reason}>
+                                    {reason}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                         {filteredEvents.length === 0 ? (
                           <p className="panel-empty">
                             No events match this filter.
                           </p>
                         ) : null}
                       </div>
-                      <div className="trace-footer">
-                        <span className="live-dot" />
-                        Persisted locally
+                      <div className="panel-footer">
                         <span>
-                          Select an event to inspect its evidence
-                          <ArrowRight size={13} />
+                          {filteredEvents.length} of {run.events.length} events
                         </span>
+                        <span>Select an event to view details</span>
                       </div>
                     </div>
                   ) : (
                     <div
+                      className="journal-tab"
                       role="tabpanel"
                       id="operations-panel"
                       aria-labelledby="operations-tab"
-                      className="operations"
                     >
-                      <div className="operation-labels">
-                        <span>Logical operation</span>
-                        <span>Status / attempts</span>
+                      <div className="trace-toolbar">
+                        <span>{run.operations.length} logical operations</span>
+                        <span>Stable IDs across retries</span>
                       </div>
-                      {run.operations.map((operation) => (
-                        <div className="operation-row" key={operation.id}>
-                          <div>
-                            <strong>{operation.step_key}</strong>
-                            <small>
-                              {operation.tool}
-                              <span>·</span>
-                              {operation.id.slice(0, 10)}
-                            </small>
-                          </div>
-                          <div>
-                            <Badge status={operation.status} />
-                            <small>
-                              {operation.attempts} attempt
-                              {operation.attempts === 1 ? "" : "s"}
-                            </small>
-                            {["unknown", "dispatched"].includes(
-                              operation.status,
-                            ) && run.metadata.mode === "demo" ? (
-                              <button
-                                className="text-button"
-                                disabled={busy}
-                                onClick={() => setResolving(operation)}
+                      <div className="table-scroll">
+                        <table className="operation-table">
+                          <caption className="sr-only">Tool operations</caption>
+                          <thead>
+                            <tr>
+                              <th scope="col">Operation</th>
+                              <th scope="col">Tool</th>
+                              <th scope="col">Status</th>
+                              <th scope="col">Attempts</th>
+                              <th scope="col">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {run.operations.map((operation) => (
+                              <tr
+                                key={operation.id}
+                                className={
+                                  selectedOperation?.id === operation.id
+                                    ? "selected"
+                                    : ""
+                                }
                               >
-                                Confirm result
-                                <ArrowRight size={12} />
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      ))}
-                      {run.operations.length === 0 ? (
-                        <p className="panel-empty">
-                          No operations have been dispatched.
-                        </p>
-                      ) : null}
+                                <td>
+                                  <button
+                                    className="operation-select"
+                                    disabled={
+                                      !run.events.some(
+                                        (event) =>
+                                          event.operation_id === operation.id,
+                                      )
+                                    }
+                                    onClick={() => {
+                                      const last = [...run.events]
+                                        .reverse()
+                                        .find(
+                                          (event) =>
+                                            event.operation_id === operation.id,
+                                        );
+                                      if (last) setEventSeq(last.seq);
+                                    }}
+                                  >
+                                    {operation.step_key}
+                                  </button>
+                                  <small
+                                    className="operation-id"
+                                    title={operation.id}
+                                  >
+                                    {operation.id.slice(0, 14)}
+                                  </small>
+                                </td>
+                                <td className="mono">{operation.tool}</td>
+                                <td>
+                                  <Badge status={operation.status} />
+                                </td>
+                                <td className="mono">{operation.attempts}</td>
+                                <td>
+                                  {["unknown", "dispatched"].includes(
+                                    operation.status,
+                                  ) && run.metadata.mode === "demo" ? (
+                                    <button
+                                      className="text-button"
+                                      disabled={busy}
+                                      onClick={() => setResolving(operation)}
+                                    >
+                                      Confirm result
+                                    </button>
+                                  ) : (
+                                    <span className="secondary-text">—</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {run.operations.length === 0 ? (
+                          <p className="panel-empty">
+                            No operations have been dispatched.
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="panel-footer">
+                        <span>
+                          {completed} completed ·{" "}
+                          {run.operations.length - completed} remaining
+                        </span>
+                        <span>Results persisted per operation</span>
+                      </div>
                     </div>
                   )}
                 </section>
@@ -1037,88 +1123,37 @@ export default function App() {
                   operation={selectedOperation}
                 />
               </div>
-              {run.status === "needs_review" || run.status === "interrupted" ? (
-                <div className="review-note">
-                  <CircleHelp size={19} />
-                  <p>
-                    <strong>
-                      {run.status === "needs_review"
-                        ? "This run needs a confirmed outcome."
-                        : "The interruption has been preserved."}
-                    </strong>
-                    {run.status === "needs_review"
-                      ? "Resume to probe again, or inspect an operation and record a result you independently verified."
-                      : "Resume to let the selected policy reconcile the outstanding action."}
-                  </p>
-                  <button
-                    className="text-button"
-                    onClick={() => setTab("operations")}
-                  >
-                    Inspect operations
-                    <ArrowRight size={15} />
-                  </button>
-                </div>
-              ) : null}
             </>
           ) : (
             <section className="empty-state">
-              <div className="empty-illustration" aria-hidden="true">
-                <span className="empty-node">
-                  <Terminal size={27} />
-                </span>
-                <span className="empty-line" />
-                <span className="empty-node center">
-                  <RotateCcw size={39} strokeWidth={1.6} />
-                </span>
-                <span className="empty-line" />
-                <span className="empty-node">
-                  <ShieldCheck size={29} />
-                </span>
-              </div>
-              <span className="eyebrow">
-                A CONTROLLED FAILURE. A VISIBLE RECOVERY.
-              </span>
-              <h2>What happens after the interruption?</h2>
+              <GitBranch size={28} />
+              <h2>No runs in this workspace</h2>
               <p>
-                Create a local experiment. Lose an acknowledgment, delay a
-                result, or withhold evidence. Then inspect how the harness
-                decides what comes next.
+                Create an experiment to inspect execution events and recovery
+                decisions.
               </p>
               <button
                 className="button primary"
                 onClick={() => setCreating(true)}
               >
-                <FlaskConical size={17} />
+                <Plus size={14} />
                 Create your first experiment
-                <ArrowRight size={16} />
               </button>
-              <div className="empty-benefits">
-                <span>
-                  <Check size={15} />
-                  No API key
-                </span>
-                <span>
-                  <Check size={15} />
-                  Durable SQLite journal
-                </span>
-                <span>
-                  <Check size={15} />
-                  Inspectable decisions
-                </span>
-              </div>
+              <small>Simulated provider · No API key required</small>
             </section>
           )}
-          <footer className="main-footer">
-            <span>
-              REBOUND HARNESS<span className="separator">/</span>Evidence before
-              repetition.
-            </span>
-            <a href="/docs" target="_blank" rel="noreferrer">
-              Explore the local API
-              <ArrowRight size={13} />
-            </a>
-          </footer>
         </div>
+        <footer className="main-footer">
+          <span>
+            <span className="live-dot" />
+            Local journal
+          </span>
+          <span>
+            {run
+              ? `${run.events.length} events · Updated ${displayTime(run.updated_at)}`
+              : "Ready"}
+          </span>
+        </footer>
       </main>
       {creating ? (
         <CreateDialog

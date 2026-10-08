@@ -1,9 +1,20 @@
 <p align="center">
-  <img src="docs/assets/banner.svg" alt="Rebound Harness：依据证据恢复执行" width="100%" />
+  <img src="docs/assets/logo.svg" alt="Rebound Harness 标志" width="112" height="112" />
 </p>
-
-<p align="center"><strong>面向长任务可靠执行与恢复评测的 Agent Harness。</strong></p>
-<p align="center"><a href="README.md">English</a> · <a href="docs/recovery-contract.md">恢复契约</a> · <a href="docs/experiments.md">实验协议</a> · <a href="docs/related-work.md">相关工作</a></p>
+<h1 align="center">Rebound Harness</h1>
+<p align="center">支持持久化执行、故障恢复与恢复评测的 Python Agent Harness。</p>
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="#快速运行">快速开始</a> ·
+  <a href="docs/recovery-contract.md">恢复契约</a> ·
+  <a href="docs/experiments.md">实验协议</a> ·
+  <a href="docs/related-work.md">相关工作</a>
+</p>
+<p align="center">
+  <a href="https://github.com/Ailta666508/rebound-harness/actions/workflows/ci.yml"><img alt="验证工作流" src="https://github.com/Ailta666508/rebound-harness/actions/workflows/ci.yml/badge.svg" /></a>
+  <img alt="Python 3.12+" src="https://img.shields.io/badge/Python-3.12%2B-635bff" />
+  <img alt="Apache 2.0 许可" src="https://img.shields.io/badge/license-Apache_2.0-6b7280" />
+</p>
 
 ## 解决什么问题
 

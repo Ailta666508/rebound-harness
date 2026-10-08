@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Rebound Harness</title>
+  <desc id="desc">A purple return arrow with a pale offset layer.</desc>
+  <path d="M43 14 13 44 43 74 54 63 43 52H75a18 18 0 0 1 0 36H45v16h30a34 34 0 0 0 0-68H43l11-11Z" transform="translate(6 7)" fill="#e8e6ff"/>
+  <path d="M43 14 13 44 43 74 54 63 43 52H75a18 18 0 0 1 0 36H45v16h30a34 34 0 0 0 0-68H43l11-11Z" fill="#635bff"/>
+</svg>

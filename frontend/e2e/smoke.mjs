@@ -23,7 +23,7 @@ const browser = await chromium.launch({
   executablePath: process.env.BROWSER_EXECUTABLE || undefined,
 });
 const context = await browser.newContext({
-  viewport: { width: 1440, height: 1160 },
+  viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 1,
 });
 const page = await context.newPage();
@@ -59,11 +59,62 @@ async function createExperiment(scenarioName, steps) {
   return run;
 }
 
+async function assertDesktopLayout() {
+  const layout = await page.evaluate(() => {
+    const bounds = (selector) => {
+      const rect = document.querySelector(selector).getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, height: rect.height };
+    };
+    return {
+      sidebar: bounds(".sidebar"),
+      main: bounds("main"),
+      trace: bounds(".trace-panel"),
+      detail: bounds(".detail-panel"),
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+      document: {
+        width: document.documentElement.scrollWidth,
+        height: document.documentElement.scrollHeight,
+      },
+    };
+  });
+  assert.deepEqual(layout.viewport, { width: 1440, height: 900 });
+  assert.equal(
+    layout.document.width,
+    layout.viewport.width,
+    "Desktop width must match viewport",
+  );
+  assert.equal(
+    layout.document.height,
+    layout.viewport.height,
+    "Desktop height must match viewport",
+  );
+  assert.ok(
+    Math.abs(layout.sidebar.bottom - 900) < 1,
+    "Sidebar must end at viewport bottom",
+  );
+  assert.ok(
+    Math.abs(layout.main.bottom - 900) < 1,
+    "Main must end at viewport bottom",
+  );
+  assert.ok(
+    Math.abs(layout.trace.top - layout.detail.top) < 1,
+    "Inspector panel tops must align",
+  );
+  assert.ok(
+    Math.abs(layout.trace.bottom - layout.detail.bottom) < 1,
+    "Inspector panel bottoms must align",
+  );
+  assert.ok(
+    Math.abs(layout.trace.height - layout.detail.height) < 1,
+    "Inspector panels must have equal heights",
+  );
+}
+
 try {
   await mkdir(output, { recursive: true });
   await page.goto(baseURL);
   await page
-    .getByRole("heading", { name: "Recovery, with receipts." })
+    .getByRole("heading", { name: "Recovery inspector", exact: true })
     .waitFor();
 
   const uncertain = await createExperiment("Unavailable evidence", 8);
@@ -84,11 +135,16 @@ try {
   );
   assert.ok(resumed.metrics.probes > uncertain.metrics.probes);
   await page.getByRole("tab", { name: "Operations", exact: true }).click();
+  await assertDesktopLayout();
+  await page.screenshot({
+    path: resolve(output, "inspector-review.png"),
+    fullPage: false,
+  });
   await page
     .getByRole("button", { name: "Confirm result", exact: true })
     .click();
   await page
-    .getByRole("dialog", { name: "Record a human confirmation." })
+    .getByRole("dialog", { name: "Confirm an operation result" })
     .waitFor();
   await page.getByRole("button", { name: "Close dialog", exact: true }).click();
 
@@ -136,10 +192,38 @@ try {
   assert.equal(trace.metrics.duplicate_effects, 0);
   assert.equal(trace.events.length, recovered.events.length);
 
+  await page.getByLabel("Filter events").selectOption("all");
+  await page
+    .getByRole("button")
+    .filter({ hasText: "recovery · decision" })
+    .last()
+    .click();
+  await assertDesktopLayout();
+  assert.equal(
+    await page
+      .locator(".table-scroll")
+      .evaluate((node) => node.scrollHeight > node.clientHeight),
+    true,
+    "Long trace must scroll inside its panel",
+  );
+  assert.equal(
+    await page
+      .locator(".detail-scroll")
+      .evaluate((node) => node.scrollHeight > node.clientHeight),
+    true,
+    "Evidence payload must scroll inside its panel",
+  );
   await page.screenshot({
     path: resolve(output, "inspector.png"),
-    fullPage: true,
+    fullPage: false,
   });
+  await page.getByRole("tab", { name: "Operations", exact: true }).click();
+  await assertDesktopLayout();
+  await page.screenshot({
+    path: resolve(output, "inspector-operations.png"),
+    fullPage: false,
+  });
+  await page.getByRole("tab", { name: "Execution trace", exact: true }).click();
   assert.equal(
     await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth,
@@ -148,6 +232,16 @@ try {
     "Desktop has horizontal overflow",
   );
 
+  await page.setViewportSize({ width: 1440, height: 520 });
+  assert.equal(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollHeight > window.innerHeight &&
+        getComputedStyle(document.body).overflow !== "hidden",
+    ),
+    true,
+    "Short desktop must allow access below the viewport",
+  );
   await page.setViewportSize({ width: 390, height: 844 });
   await page
     .getByRole("heading", { name: recovered.title, exact: true })

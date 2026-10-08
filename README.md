@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="docs/assets/banner.svg" alt="Rebound Harness — Recover with evidence" width="100%" />
+  <img src="docs/assets/logo.svg" alt="Rebound Harness logo" width="112" height="112" />
 </p>
-
+<h1 align="center">Rebound Harness</h1>
 <p align="center">
-  <strong>A durable agent harness for the moment a tool times out and nobody knows what happened.</strong>
+  A Python agent harness for durable execution and recovery evaluation.
 </p>
 <p align="center">
   <a href="README.zh-CN.md">简体中文</a> ·
@@ -14,9 +14,8 @@
 </p>
 <p align="center">
   <a href="https://github.com/Ailta666508/rebound-harness/actions/workflows/ci.yml"><img alt="Verification workflow" src="https://github.com/Ailta666508/rebound-harness/actions/workflows/ci.yml/badge.svg" /></a>
-  <img alt="Python 3.12+" src="https://img.shields.io/badge/Python-3.12%2B-356b99" />
-  <img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache_2.0-5c6ac4" />
-  <img alt="Local first" src="https://img.shields.io/badge/runtime-local_first-168978" />
+  <img alt="Python 3.12+" src="https://img.shields.io/badge/Python-3.12%2B-635bff" />
+  <img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache_2.0-6b7280" />
 </p>
 
 ## Why Rebound?
