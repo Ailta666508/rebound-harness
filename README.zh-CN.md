@@ -148,4 +148,4 @@ rebound agent 'Write a short note explaining safe retries' \
 
 ## 作者与许可
 
-作者：[Ailta666508](https://github.com/Ailta666508)。Apache-2.0 许可；参考项目保留来源说明。
+作者：[Ailta666508](https://github.com/Ailta666508)。Apache-2.0 许可；参考项目保留来源说明，前端依赖保留[第三方许可证](THIRD_PARTY_NOTICES.md)。

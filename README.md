@@ -227,4 +227,4 @@ Useful reading:
 
 ## License and author
 
-Apache-2.0. Created and maintained by [Ailta666508](https://github.com/Ailta666508). Upstream projects are credited in [related work](docs/related-work.md).
+Apache-2.0. Created and maintained by [Ailta666508](https://github.com/Ailta666508). Upstream projects are credited in [related work](docs/related-work.md). Bundled frontend dependencies retain their [third-party license notices](THIRD_PARTY_NOTICES.md).
