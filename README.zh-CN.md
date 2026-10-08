@@ -67,7 +67,9 @@ rebound resume RUN_ID --data .rebound
 
 ![实际运行的 Inspector：12 步任务、3 次证据查询、0 次重复副作用](docs/assets/inspector.png)
 
-这是端到端浏览器测试生成的实际截图。模拟服务的前两次查询看不到已经提交的操作，第三次返回回执；界面展示持久化日志中的真实状态。[手机端截图](docs/assets/inspector-mobile.png) · [浏览器测试](frontend/e2e/smoke.mjs)。
+这是端到端浏览器测试生成的实际截图。模拟服务的前两次查询看不到已经提交的操作，第三次返回回执；界面展示持久化日志中的真实状态。桌面图统一为 1440 × 900，两栏对齐，内容在面板内独立滚动。
+
+[操作列表](docs/assets/inspector-operations.png) · [待复核状态](docs/assets/inspector-review.png) · [手机端](docs/assets/inspector-mobile.png) · [浏览器测试](frontend/e2e/smoke.mjs)。
 
 ## 如何恢复
 

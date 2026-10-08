@@ -85,7 +85,9 @@ Open [localhost:8787](http://localhost:8787). For frontend development, see [arc
 
 ![The running local inspector showing a recovered 12-step task, three evidence probes, and zero duplicate effects](docs/assets/inspector.png)
 
-Actual Chromium screenshot from the end-to-end test: the simulated provider hides a committed operation for two reads before exposing its receipt. The inspector reads persisted data. [Mobile screenshot](docs/assets/inspector-mobile.png) · [Browser test](frontend/e2e/smoke.mjs).
+Actual Chromium screenshot from the end-to-end test: the simulated provider hides a committed operation for two reads before exposing its receipt. The inspector reads persisted data. Desktop views share a 1440 × 900 frame with aligned, independently scrolling panels.
+
+[Operations](docs/assets/inspector-operations.png) · [Review](docs/assets/inspector-review.png) · [Mobile](docs/assets/inspector-mobile.png) · [Browser test](frontend/e2e/smoke.mjs).
 
 ## The recovery boundary
 
