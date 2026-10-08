@@ -34,6 +34,16 @@ artifacts = ["src/rebound/static/**"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/rebound"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src/rebound", "/tests", "/examples", "/docs", "/frontend",
+  "/benchmarks/*.md", "/benchmarks/reference/*.json", "/benchmarks/reference/*.jsonl",
+  "/benchmarks/reference/*.csv", "/benchmarks/reference/*.md", "/benchmarks/reference/*.svg",
+  "/*.md", "/LICENSE", "/NOTICE", "/CITATION.cff", "/Makefile",
+  "/pyproject.toml", "/requirements-dev.lock"
+]
+exclude = ["**/node_modules/**", "**/__pycache__/**", "**/*.py[cod]", "**/*.tsbuildinfo"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"

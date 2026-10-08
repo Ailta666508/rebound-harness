@@ -13,6 +13,7 @@
   <a href="docs/related-work.md">Related work</a>
 </p>
 <p align="center">
+  <a href="https://github.com/Ailta666508/rebound-harness/actions/workflows/ci.yml"><img alt="Verification workflow" src="https://github.com/Ailta666508/rebound-harness/actions/workflows/ci.yml/badge.svg" /></a>
   <img alt="Python 3.12+" src="https://img.shields.io/badge/Python-3.12%2B-356b99" />
   <img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache_2.0-5c6ac4" />
   <img alt="Local first" src="https://img.shields.io/badge/runtime-local_first-168978" />
@@ -80,6 +81,12 @@ rebound serve --data .rebound --port 8787
 Release wheels bundle the built inspector. The CLI and Python runtime do not require Node.js.
 
 Open [localhost:8787](http://localhost:8787). For frontend development, see [architecture](docs/architecture.md#local-inspector).
+
+## Inspect recovery decisions
+
+![The running local inspector showing a recovered 12-step task, three evidence probes, and zero duplicate effects](docs/assets/inspector.png)
+
+Actual Chromium screenshot from the end-to-end test: the simulated provider hides a committed operation for two reads before exposing its receipt. The inspector reads persisted data. [Mobile screenshot](docs/assets/inspector-mobile.png) · [Browser test](frontend/e2e/smoke.mjs).
 
 ## The recovery boundary
 

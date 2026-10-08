@@ -52,6 +52,12 @@ rebound resume RUN_ID --data .rebound
 
 `inspect` 读取记录，`verify` 检查记录；`resume` 会继续实际执行，并可能调用工具。离线检查不会重新触发写操作。
 
+## 看清每一次恢复决策
+
+![实际运行的 Inspector：12 步任务、3 次证据查询、0 次重复副作用](docs/assets/inspector.png)
+
+这是端到端浏览器测试生成的实际截图。模拟服务的前两次查询看不到已经提交的操作，第三次返回回执；界面展示持久化日志中的真实状态。[手机端截图](docs/assets/inspector-mobile.png) · [浏览器测试](frontend/e2e/smoke.mjs)。
+
 ## 如何恢复
 
 ![系统架构](docs/assets/architecture.svg)

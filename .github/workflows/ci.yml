@@ -49,6 +49,15 @@ jobs:
           cd frontend
           node e2e/smoke.mjs
       - run: python -m build
+      - name: Keep source distribution free of generated dependency trees
+        run: |
+          python - <<'PY'
+          import glob, tarfile
+          with tarfile.open(glob.glob('dist/*.tar.gz')[0]) as archive:
+              paths = archive.getnames()
+              assert not any('/node_modules/' in p or '/state/' in p for p in paths)
+              assert any(p.endswith('/static/index.html') for p in paths)
+          PY
       - name: Check installed wheel includes the inspector
         run: |
           python -m venv /tmp/rebound-wheel
