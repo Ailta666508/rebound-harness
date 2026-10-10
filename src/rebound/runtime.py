@@ -15,16 +15,19 @@ POLICIES = ("evidence", "naive", "checkpoint", "idempotent", "verify", "no_fresh
 class Runtime:
     def __init__(self, store: Store, tools: list[Tool], policy="evidence", max_attempts=3,
                  probe_budget=3, probe_delay=0.01, tool_timeout=10, evidence_ttl=30,
-                 fault_hook=None):
+                 run_timeout: float | None = None, fault_hook=None):
         if policy not in POLICIES:
             raise ValueError(f"unknown policy: {policy}")
         if len({t.name for t in tools}) != len(tools):
             raise ValueError("duplicate tool names")
         if min(max_attempts, probe_budget, tool_timeout, evidence_ttl) <= 0 or probe_delay < 0:
             raise ValueError("budgets/timeouts must be positive; delay must be nonnegative")
+        if run_timeout is not None and run_timeout <= 0:
+            raise ValueError("run_timeout must be positive when provided")
         self.store, self.tools, self.policy = store, {t.name: t for t in tools}, policy
         self.max_attempts, self.probe_budget = max_attempts, probe_budget
         self.probe_delay, self.tool_timeout, self.evidence_ttl = probe_delay, tool_timeout, evidence_ttl
+        self.run_timeout = run_timeout
         self.fault_hook = fault_hook
 
     def _hook(self, point, op_id):
@@ -85,10 +88,25 @@ class Runtime:
         except Timeout as exc:
             raise RuntimeError("run already has an active runner") from exc
         try:
+            started_at = time.monotonic()
+            budget_reported = False
+
+            def runtime_budget_exhausted() -> bool:
+                nonlocal budget_reported
+                if self.run_timeout is None or time.monotonic() - started_at < self.run_timeout:
+                    return False
+                if not budget_reported:
+                    self.store.event(run_id, "budget.runtime_exhausted", payload={"seconds": self.run_timeout})
+                    budget_reported = True
+                self.store.set_status(run_id, "needs_review")
+                return True
+
             if self.store.snapshot(run_id)["status"] == "cancelled":
                 return self.store.snapshot(run_id)
             self.store.set_status(run_id, "running")
             for original in self.store.snapshot(run_id)["operations"]:
+                if runtime_budget_exhausted():
+                    return self.store.snapshot(run_id)
                 if self.store.snapshot(run_id)["status"] == "cancelled":
                     return self.store.snapshot(run_id)
                 op = original
@@ -106,6 +124,8 @@ class Runtime:
                     self.store.set_status(run_id, "failed")
                     return self.store.snapshot(run_id)
                 while True:
+                    if runtime_budget_exhausted():
+                        return self.store.snapshot(run_id)
                     if op["status"] in {"dispatched", "unknown"}:
                         if op["status"] == "dispatched":
                             self.store.transition(op["id"], "unknown", error="runner stopped before result commit")

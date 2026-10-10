@@ -92,6 +92,25 @@ async def test_retry_budget_and_stable_identity(tmp_path):
     assert verify_snapshot(snap)["valid"]
 
 
+async def test_run_timeout_stops_before_next_operation_and_records_budget_event(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="one", tool="read"), Step(key="two", tool="read")])
+    async def execute(_op, _args):
+        await asyncio.sleep(0.02)
+        return {"ok": True}
+    snap = await Runtime(
+        store, [Tool("read", ToolKind.READ_ONLY, execute)], run_timeout=0.001,
+    ).run(run)
+    assert snap["status"] == "needs_review"
+    assert snap["operations"][0]["status"] == "planned"
+    assert any(event["kind"] == "budget.runtime_exhausted" for event in snap["events"])
+
+
+def test_run_timeout_must_be_positive(tmp_path):
+    with pytest.raises(ValueError, match="run_timeout"):
+        Runtime(Store(tmp_path / "state.sqlite"), [], run_timeout=0)
+
+
 async def test_cancel_during_effect_does_not_report_completed(tmp_path):
     store = Store(tmp_path / "state.sqlite")
     run = store.create_run([Step(key="x", tool="write"), Step(key="y", tool="write")])
