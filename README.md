@@ -63,9 +63,16 @@ Use the run ID printed by the command:
 rebound inspect RUN_ID --data .rebound
 rebound verify RUN_ID --data .rebound
 rebound resume RUN_ID --data .rebound
+rebound audit RUN_ID --data .rebound --output audit.json
 ```
 
 `inspect` reads the recorded run. `verify` checks the recorded trace. **`resume` is live execution and can invoke tools.** Inspecting or verifying a trace never replays external writes.
+
+`audit` produces a deterministic, redacted operational summary: statuses,
+attempt counts, event kinds, recovery decisions, and whether the run needs
+review. It deliberately excludes tool arguments, results, and evidence payloads,
+so it can be attached to an incident without copying provider data. Writing the
+report is local file output; it never resumes the run.
 
 Build the inspector once when installing from a source checkout. Use Node.js 24 and pnpm 11.25.0:
 
@@ -142,6 +149,12 @@ python examples/typed_agent.py
 ```
 
 For effectful integrations, implement the provider's `execute` and optional `probe` contract. Setting `idempotent` is a claim about the provider; merely generating an ID does not make a tool idempotent.
+
+Production runners can pass `run_timeout=<seconds>` to `Runtime`. When the
+wall-clock budget is exhausted, the runtime records `budget.runtime_exhausted`,
+stops before dispatching another operation, and moves the run to
+`needs_review`. This bounds a stalled recovery loop without pretending that
+unfinished external work is safe to retry.
 
 ## Connect a model
 

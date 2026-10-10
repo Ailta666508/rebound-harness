@@ -72,6 +72,18 @@ def verify(run_id: str, data: Path = Path(".rebound")):
 
 
 @app.command()
+def audit(run_id: str, data: Path = Path(".rebound"), output: Path | None = None):
+    """Print a redacted operational summary without replaying tools."""
+    from rebound.audit import build_audit_report
+
+    report = build_audit_report(DemoService(data).snapshot(run_id))
+    if output is not None:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    console.print_json(data=report)
+
+
+@app.command()
 def benchmark(output: Path = Path("benchmarks/local-results"), seeds: int = 5, lengths: str = "4,12,24"):
     """Run scripted fault trials; no LLM API key or hidden model charges."""
     from rebound.benchmark import run_suite
