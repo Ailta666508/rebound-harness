@@ -17,6 +17,10 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         if event.get("kind") == "recovery.decision" and isinstance(event.get("payload"), dict)
     ]
     decision_counts = Counter(str(item.get("action", "unknown")) for item in decisions)
+    budget_events = Counter(
+        str(event.get("kind")) for event in events
+        if str(event.get("kind", "")).startswith("budget.")
+    )
     return {
         "schema_version": 1,
         "run_id": snapshot.get("id"),
@@ -28,5 +32,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "event_count": len(events),
         "event_kinds": dict(sorted(Counter(str(event.get("kind", "unknown")) for event in events).items())),
         "recovery_decisions": dict(sorted(decision_counts.items())),
+        "budget_events": dict(sorted(budget_events.items())),
+        "budget_exhausted": sum(budget_events.values()) > 0,
         "needs_review": snapshot.get("status") == "needs_review",
     }
