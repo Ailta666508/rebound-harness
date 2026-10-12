@@ -106,6 +106,20 @@ async def test_run_timeout_stops_before_next_operation_and_records_budget_event(
     assert any(event["kind"] == "budget.runtime_exhausted" for event in snap["events"])
 
 
+async def test_run_timeout_also_bounds_an_in_flight_tool_call(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="one", tool="slow")])
+    async def execute(_op, _args):
+        await asyncio.sleep(1)
+        return {"too": "late"}
+    started = time.monotonic()
+    snap = await Runtime(store, [Tool("slow", ToolKind.READ_ONLY, execute)], run_timeout=0.02, tool_timeout=2).run(run)
+    assert time.monotonic() - started < 0.25
+    assert snap["status"] == "needs_review"
+    assert snap["operations"][0]["status"] == "unknown"
+    assert any(event["kind"] == "budget.runtime_limits_call" for event in snap["events"])
+
+
 def test_run_timeout_must_be_positive(tmp_path):
     with pytest.raises(ValueError, match="run_timeout"):
         Runtime(Store(tmp_path / "state.sqlite"), [], run_timeout=0)

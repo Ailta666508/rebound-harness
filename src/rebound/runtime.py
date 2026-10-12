@@ -90,6 +90,7 @@ class Runtime:
         try:
             started_at = time.monotonic()
             budget_reported = False
+            deadline = started_at + self.run_timeout if self.run_timeout is not None else None
 
             def runtime_budget_exhausted() -> bool:
                 nonlocal budget_reported
@@ -100,6 +101,18 @@ class Runtime:
                     budget_reported = True
                 self.store.set_status(run_id, "needs_review")
                 return True
+
+            def execution_timeout(operation_id: str) -> float:
+                """Never let one tool call exceed the remaining run budget."""
+                if deadline is None:
+                    return self.tool_timeout
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    return 0.001
+                timeout = min(self.tool_timeout, remaining)
+                if timeout < self.tool_timeout:
+                    self.store.event(run_id, "budget.runtime_limits_call", operation_id, {"seconds": timeout})
+                return timeout
 
             if self.store.snapshot(run_id)["status"] == "cancelled":
                 return self.store.snapshot(run_id)
@@ -149,7 +162,9 @@ class Runtime:
                         raise
                     self._hook("before_dispatch", op["id"])
                     try:
-                        result = await asyncio.wait_for(tool.execute(op["id"], op["arguments"]), self.tool_timeout)
+                        result = await asyncio.wait_for(
+                            tool.execute(op["id"], op["arguments"]), execution_timeout(op["id"]),
+                        )
                         if not isinstance(result, dict) or len(encode(result)) > 1_000_000:
                             raise ValueError("tool result must be a JSON object under 1 MB")
                     except ToolRejected as exc:
