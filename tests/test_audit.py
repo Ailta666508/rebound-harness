@@ -9,10 +9,10 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
             {"status": "succeeded", "attempts": 1, "arguments": {}, "result": {"ok": True}},
         ],
         "events": [
-            {"kind": "run.created", "payload": {"steps": 2}},
-            {"kind": "recovery.decision", "payload": {"action": "probe", "evidence": {"result": "hide"}}},
-            {"kind": "recovery.decision", "payload": {"action": "review"}},
-            {"kind": "budget.runtime_limits_call", "payload": {"seconds": 0.2}},
+            {"kind": "run.created", "created_at": 100.0, "payload": {"steps": 2}},
+            {"kind": "recovery.decision", "created_at": 100.125, "payload": {"action": "probe", "evidence": {"result": "hide"}}},
+            {"kind": "recovery.decision", "created_at": 100.5, "payload": {"action": "review"}},
+            {"kind": "budget.runtime_limits_call", "created_at": 100.75, "payload": {"seconds": 0.2}},
         ],
     })
     assert report == {
@@ -22,5 +22,6 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "event_kinds": {"budget.runtime_limits_call": 1, "recovery.decision": 2, "run.created": 1},
         "recovery_decisions": {"probe": 1, "review": 1}, "needs_review": True,
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,
+        "duration_seconds": 0.75,
     }
     assert "secret" not in str(report) and "token" not in str(report)
