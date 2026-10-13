@@ -117,6 +117,13 @@ class Runtime:
             if self.store.snapshot(run_id)["status"] == "cancelled":
                 return self.store.snapshot(run_id)
             self.store.set_status(run_id, "running")
+            self.store.event(run_id, "run.runtime_config", payload={
+                "policy": self.policy,
+                "max_attempts": self.max_attempts,
+                "probe_budget": self.probe_budget,
+                "tool_timeout": self.tool_timeout,
+                "run_timeout": self.run_timeout,
+            })
             for original in self.store.snapshot(run_id)["operations"]:
                 if runtime_budget_exhausted():
                     return self.store.snapshot(run_id)

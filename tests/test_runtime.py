@@ -104,6 +104,8 @@ async def test_run_timeout_stops_before_next_operation_and_records_budget_event(
     assert snap["status"] == "needs_review"
     assert snap["operations"][0]["status"] == "planned"
     assert any(event["kind"] == "budget.runtime_exhausted" for event in snap["events"])
+    config = next(event for event in snap["events"] if event["kind"] == "run.runtime_config")
+    assert config["payload"] == {"policy": "evidence", "max_attempts": 3, "probe_budget": 3, "tool_timeout": 10, "run_timeout": 0.001}
 
 
 async def test_run_timeout_also_bounds_an_in_flight_tool_call(tmp_path):
