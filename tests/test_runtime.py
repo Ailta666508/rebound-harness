@@ -105,7 +105,7 @@ async def test_run_timeout_stops_before_next_operation_and_records_budget_event(
     assert snap["operations"][0]["status"] == "planned"
     assert any(event["kind"] == "budget.runtime_exhausted" for event in snap["events"])
     config = next(event for event in snap["events"] if event["kind"] == "run.runtime_config")
-    assert config["payload"] == {"policy": "evidence", "max_attempts": 3, "probe_budget": 3, "tool_timeout": 10, "run_timeout": 0.001}
+    assert config["payload"] == {"policy": "evidence", "max_attempts": 3, "probe_budget": 3, "tool_timeout": 10, "run_timeout": 0.001, "max_result_bytes": 1_000_000}
 
 
 async def test_run_timeout_also_bounds_an_in_flight_tool_call(tmp_path):
@@ -125,6 +125,21 @@ async def test_run_timeout_also_bounds_an_in_flight_tool_call(tmp_path):
 def test_run_timeout_must_be_positive(tmp_path):
     with pytest.raises(ValueError, match="run_timeout"):
         Runtime(Store(tmp_path / "state.sqlite"), [], run_timeout=0)
+
+
+async def test_result_budget_counts_utf8_bytes_and_is_configurable(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="one", tool="read")])
+    async def execute(_op, _args):
+        return {"text": "狗" * 10}
+    snap = await Runtime(store, [Tool("read", ToolKind.READ_ONLY, execute)], max_result_bytes=20, max_attempts=1).run(run)
+    assert snap["status"] == "needs_review"
+    assert snap["operations"][0]["status"] == "unknown"
+
+
+def test_result_budget_must_be_a_positive_integer(tmp_path):
+    with pytest.raises(ValueError, match="max_result_bytes"):
+        Runtime(Store(tmp_path / "state.sqlite"), [], max_result_bytes=True)
 
 
 async def test_cancel_during_effect_does_not_report_completed(tmp_path):

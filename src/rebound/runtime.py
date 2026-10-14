@@ -15,7 +15,8 @@ POLICIES = ("evidence", "naive", "checkpoint", "idempotent", "verify", "no_fresh
 class Runtime:
     def __init__(self, store: Store, tools: list[Tool], policy="evidence", max_attempts=3,
                  probe_budget=3, probe_delay=0.01, tool_timeout=10, evidence_ttl=30,
-                 run_timeout: float | None = None, fault_hook=None):
+                 run_timeout: float | None = None, max_result_bytes: int = 1_000_000,
+                 fault_hook=None):
         if policy not in POLICIES:
             raise ValueError(f"unknown policy: {policy}")
         if len({t.name for t in tools}) != len(tools):
@@ -24,10 +25,13 @@ class Runtime:
             raise ValueError("budgets/timeouts must be positive; delay must be nonnegative")
         if run_timeout is not None and run_timeout <= 0:
             raise ValueError("run_timeout must be positive when provided")
+        if isinstance(max_result_bytes, bool) or not isinstance(max_result_bytes, int) or max_result_bytes <= 0:
+            raise ValueError("max_result_bytes must be a positive integer")
         self.store, self.tools, self.policy = store, {t.name: t for t in tools}, policy
         self.max_attempts, self.probe_budget = max_attempts, probe_budget
         self.probe_delay, self.tool_timeout, self.evidence_ttl = probe_delay, tool_timeout, evidence_ttl
         self.run_timeout = run_timeout
+        self.max_result_bytes = max_result_bytes
         self.fault_hook = fault_hook
 
     def _hook(self, point, op_id):
@@ -123,6 +127,7 @@ class Runtime:
                 "probe_budget": self.probe_budget,
                 "tool_timeout": self.tool_timeout,
                 "run_timeout": self.run_timeout,
+                "max_result_bytes": self.max_result_bytes,
             })
             for original in self.store.snapshot(run_id)["operations"]:
                 if runtime_budget_exhausted():
@@ -172,8 +177,8 @@ class Runtime:
                         result = await asyncio.wait_for(
                             tool.execute(op["id"], op["arguments"]), execution_timeout(op["id"]),
                         )
-                        if not isinstance(result, dict) or len(encode(result)) > 1_000_000:
-                            raise ValueError("tool result must be a JSON object under 1 MB")
+                        if not isinstance(result, dict) or len(encode(result).encode("utf-8")) > self.max_result_bytes:
+                            raise ValueError(f"tool result must be a JSON object under {self.max_result_bytes} bytes")
                     except ToolRejected as exc:
                         self.store.transition(op["id"], "failed", error=str(exc)[:1000])
                         self.store.set_status(run_id, "failed")
