@@ -23,6 +23,11 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
     )
     timestamps = [float(event["created_at"]) for event in events if isinstance(event.get("created_at"), (int, float))]
     duration_seconds = max(timestamps) - min(timestamps) if len(timestamps) >= 2 else 0.0
+    runtime_events = [
+        event.get("payload") for event in events
+        if event.get("kind") == "run.runtime_config" and isinstance(event.get("payload"), dict)
+    ]
+    runtime_config = runtime_events[-1] if runtime_events else None
     return {
         "schema_version": 1,
         "run_id": snapshot.get("id"),
@@ -37,5 +42,6 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "budget_events": dict(sorted(budget_events.items())),
         "budget_exhausted": sum(budget_events.values()) > 0,
         "duration_seconds": round(max(0.0, duration_seconds), 6),
+        "runtime_config": runtime_config,
         "needs_review": snapshot.get("status") == "needs_review",
     }
