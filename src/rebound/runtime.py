@@ -16,12 +16,12 @@ class Runtime:
     def __init__(self, store: Store, tools: list[Tool], policy="evidence", max_attempts=3,
                  probe_budget=3, probe_delay=0.01, tool_timeout=10, evidence_ttl=30,
                  run_timeout: float | None = None, max_result_bytes: int = 1_000_000,
-                 fault_hook=None):
+                 probe_backoff: float = 1.0, fault_hook=None):
         if policy not in POLICIES:
             raise ValueError(f"unknown policy: {policy}")
         if len({t.name for t in tools}) != len(tools):
             raise ValueError("duplicate tool names")
-        if min(max_attempts, probe_budget, tool_timeout, evidence_ttl) <= 0 or probe_delay < 0:
+        if min(max_attempts, probe_budget, tool_timeout, evidence_ttl) <= 0 or probe_delay < 0 or probe_backoff < 1:
             raise ValueError("budgets/timeouts must be positive; delay must be nonnegative")
         if run_timeout is not None and run_timeout <= 0:
             raise ValueError("run_timeout must be positive when provided")
@@ -30,6 +30,7 @@ class Runtime:
         self.store, self.tools, self.policy = store, {t.name: t for t in tools}, policy
         self.max_attempts, self.probe_budget = max_attempts, probe_budget
         self.probe_delay, self.tool_timeout, self.evidence_ttl = probe_delay, tool_timeout, evidence_ttl
+        self.probe_backoff = probe_backoff
         self.run_timeout = run_timeout
         self.max_result_bytes = max_result_bytes
         self.fault_hook = fault_hook
@@ -81,7 +82,7 @@ class Runtime:
                 return "done"
             if decision.action in {"retry", "review", "fail"}:
                 return decision.action
-            await asyncio.sleep(self.probe_delay)
+            await asyncio.sleep(self.probe_delay * (self.probe_backoff ** probe_index))
         return "review"
 
     async def run(self, run_id: str) -> dict:
@@ -128,6 +129,7 @@ class Runtime:
                 "tool_timeout": self.tool_timeout,
                 "run_timeout": self.run_timeout,
                 "max_result_bytes": self.max_result_bytes,
+                "probe_backoff": self.probe_backoff,
             })
             for original in self.store.snapshot(run_id)["operations"]:
                 if runtime_budget_exhausted():

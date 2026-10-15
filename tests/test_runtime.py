@@ -105,7 +105,7 @@ async def test_run_timeout_stops_before_next_operation_and_records_budget_event(
     assert snap["operations"][0]["status"] == "planned"
     assert any(event["kind"] == "budget.runtime_exhausted" for event in snap["events"])
     config = next(event for event in snap["events"] if event["kind"] == "run.runtime_config")
-    assert config["payload"] == {"policy": "evidence", "max_attempts": 3, "probe_budget": 3, "tool_timeout": 10, "run_timeout": 0.001, "max_result_bytes": 1_000_000}
+    assert config["payload"] == {"policy": "evidence", "max_attempts": 3, "probe_budget": 3, "tool_timeout": 10, "run_timeout": 0.001, "max_result_bytes": 1_000_000, "probe_backoff": 1.0}
 
 
 async def test_run_timeout_also_bounds_an_in_flight_tool_call(tmp_path):
@@ -140,6 +140,11 @@ async def test_result_budget_counts_utf8_bytes_and_is_configurable(tmp_path):
 def test_result_budget_must_be_a_positive_integer(tmp_path):
     with pytest.raises(ValueError, match="max_result_bytes"):
         Runtime(Store(tmp_path / "state.sqlite"), [], max_result_bytes=True)
+
+
+def test_probe_backoff_cannot_shrink_or_be_negative(tmp_path):
+    with pytest.raises(ValueError, match="budgets"):
+        Runtime(Store(tmp_path / "state.sqlite"), [], probe_backoff=0.5)
 
 
 async def test_cancel_during_effect_does_not_report_completed(tmp_path):
