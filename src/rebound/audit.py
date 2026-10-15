@@ -28,6 +28,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         if event.get("kind") == "run.runtime_config" and isinstance(event.get("payload"), dict)
     ]
     runtime_config = runtime_events[-1] if runtime_events else None
+    uncertain_count = statuses.get("unknown", 0) + statuses.get("dispatched", 0)
     return {
         "schema_version": 1,
         "run_id": snapshot.get("id"),
@@ -35,6 +36,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "title": snapshot.get("title"),
         "operation_count": len(operations),
         "operation_statuses": dict(sorted(statuses.items())),
+        "uncertain_operation_count": uncertain_count,
         "attempts": sum(int(operation.get("attempts", 0)) for operation in operations),
         "event_count": len(events),
         "event_kinds": dict(sorted(Counter(str(event.get("kind", "unknown")) for event in events).items())),
