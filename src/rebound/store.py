@@ -16,8 +16,11 @@ def encode(value: Any) -> str:
 
 
 class Store:
-    def __init__(self, path: str | Path):
+    def __init__(self, path: str | Path, max_event_bytes: int = 64 * 1024):
+        if isinstance(max_event_bytes, bool) or not isinstance(max_event_bytes, int) or max_event_bytes <= 0:
+            raise ValueError("max_event_bytes must be a positive integer")
         self.path = Path(path).resolve()
+        self.max_event_bytes = max_event_bytes
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.connect() as db:
             db.executescript("""
@@ -56,9 +59,12 @@ class Store:
 
     def _event(self, db, run_id, kind, operation_id=None, payload=None):
         now = time.time()
+        encoded = encode(payload or {})
+        if len(encoded.encode("utf-8")) > self.max_event_bytes:
+            raise ValueError(f"event payload exceeds {self.max_event_bytes} bytes")
         db.execute(
             "INSERT INTO events(run_id,kind,operation_id,payload,created_at) VALUES(?,?,?,?,?)",
-            (run_id, kind, operation_id, encode(payload or {}), now),
+            (run_id, kind, operation_id, encoded, now),
         )
         db.execute("UPDATE runs SET updated_at=? WHERE id=?", (now, run_id))
 

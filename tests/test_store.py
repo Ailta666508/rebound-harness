@@ -138,3 +138,10 @@ def test_manual_resolution_is_bound_to_the_run(tmp_path):
         store.reconcile(other, operation["id"], {}, "Wrong run assertion")
     assert store.snapshot(run)["operations"][0]["status"] == "dispatched"
     assert not any(event["kind"] == "recovery.manual" for event in store.snapshot(other)["events"])
+
+def test_event_payload_budget_rejects_oversized_payload_without_journal_row(tmp_path):
+    store = Store(tmp_path / "state.sqlite", max_event_bytes=32)
+    run = store.create_run([])
+    with pytest.raises(ValueError, match="event payload exceeds"):
+        store.event(run, "synthetic.large", payload={"value": "x" * 64})
+    assert not any(event["kind"] == "synthetic.large" for event in store.snapshot(run)["events"])
