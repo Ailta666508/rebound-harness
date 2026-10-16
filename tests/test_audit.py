@@ -20,7 +20,7 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "schema_version": 1, "run_id": "run-1", "status": "needs_review", "title": "synthetic",
         "operation_count": 2, "operation_statuses": {"succeeded": 1, "unknown": 1},
         "uncertain_operation_count": 1,
-        "attempts": 3, "event_count": 4,
+        "attempts": 3, "event_count": 4, "heartbeat_count": 0,
         "event_kinds": {"budget.runtime_limits_call": 1, "recovery.decision": 2, "run.created": 1},
         "recovery_decisions": {"probe": 1, "review": 1}, "needs_review": True,
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,

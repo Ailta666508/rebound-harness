@@ -137,6 +137,7 @@ class Runtime:
                 if self.store.snapshot(run_id)["status"] == "cancelled":
                     return self.store.snapshot(run_id)
                 op = original
+                self.store.event(run_id, "run.heartbeat", op["id"], {"status": op["status"], "attempts": op["attempts"]})
                 if op["status"] == "succeeded":
                     continue
                 tool = self.tools.get(op["tool"])
