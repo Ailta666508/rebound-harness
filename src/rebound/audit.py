@@ -32,6 +32,17 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
     ]
     runtime_config = runtime_events[-1] if runtime_events else None
     uncertain_count = statuses.get("unknown", 0) + statuses.get("dispatched", 0)
+    sequences = [event.get("seq") for event in events if isinstance(event.get("seq"), int)]
+    sequence_check = None
+    if sequences:
+        expected = list(range(sequences[0], sequences[-1] + 1))
+        sequence_check = {
+            "first": sequences[0],
+            "last": sequences[-1],
+            "monotonic": all(left < right for left, right in zip(sequences, sequences[1:])),
+            "contiguous": sequences == expected,
+            "missing_count": max(0, len(expected) - len(set(sequences))),
+        }
     return {
         "schema_version": 1,
         "run_id": snapshot.get("id"),
@@ -53,5 +64,6 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "budget_exhausted": sum(budget_events.values()) > 0,
         "duration_seconds": round(max(0.0, duration_seconds), 6),
         "runtime_config": runtime_config,
+        "journal_sequence": sequence_check,
         "needs_review": snapshot.get("status") == "needs_review",
     }
