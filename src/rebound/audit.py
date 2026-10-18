@@ -57,6 +57,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "last_heartbeat": ({
             "operation_id": last_heartbeat.get("operation_id"),
             "created_at": last_heartbeat.get("created_at"),
+            "runner_id": last_heartbeat.get("payload", {}).get("runner_id") if isinstance(last_heartbeat.get("payload"), dict) else None,
         } if last_heartbeat else None),
         "event_kinds": dict(sorted(Counter(str(event.get("kind", "unknown")) for event in events).items())),
         "recovery_decisions": dict(sorted(decision_counts.items())),

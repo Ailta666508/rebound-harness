@@ -37,7 +37,7 @@ def test_audit_reports_only_redacted_last_heartbeat_identity():
         {"kind": "run.heartbeat", "operation_id": "op-2", "created_at": 12.0, "payload": {"status": "planned"}},
     ]})
     assert report["heartbeat_count"] == 2
-    assert report["last_heartbeat"] == {"operation_id": "op-2", "created_at": 12.0}
+    assert report["last_heartbeat"] == {"operation_id": "op-2", "created_at": 12.0, "runner_id": None}
     assert "secret" not in str(report)
 
 

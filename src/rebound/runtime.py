@@ -2,6 +2,7 @@
 
 import asyncio
 import time
+import uuid
 
 from filelock import FileLock, Timeout
 
@@ -34,6 +35,7 @@ class Runtime:
         self.run_timeout = run_timeout
         self.max_result_bytes = max_result_bytes
         self.fault_hook = fault_hook
+        self.runner_id = "runner_" + uuid.uuid4().hex
 
     def _hook(self, point, op_id):
         if self.fault_hook:
@@ -137,7 +139,7 @@ class Runtime:
                 if self.store.snapshot(run_id)["status"] == "cancelled":
                     return self.store.snapshot(run_id)
                 op = original
-                self.store.event(run_id, "run.heartbeat", op["id"], {"status": op["status"], "attempts": op["attempts"]})
+                self.store.event(run_id, "run.heartbeat", op["id"], {"runner_id": self.runner_id, "status": op["status"], "attempts": op["attempts"]})
                 if op["status"] == "succeeded":
                     continue
                 tool = self.tools.get(op["tool"])
