@@ -29,6 +29,11 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         for event in heartbeats
         if isinstance(event.get("payload"), dict) and isinstance(event["payload"].get("runner_id"), str)
     })
+    heartbeat_statuses = Counter(
+        str(event.get("payload", {}).get("status", "unknown"))
+        for event in heartbeats
+        if isinstance(event.get("payload"), dict)
+    )
     timestamps = [float(event["created_at"]) for event in events if isinstance(event.get("created_at"), (int, float))]
     duration_seconds = max(timestamps) - min(timestamps) if len(timestamps) >= 2 else 0.0
     runtime_events = [
@@ -66,6 +71,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
             "runner_id": last_heartbeat.get("payload", {}).get("runner_id") if isinstance(last_heartbeat.get("payload"), dict) else None,
         } if last_heartbeat else None),
         "heartbeat_runner_count": len(runner_ids),
+        "heartbeat_statuses": dict(sorted(heartbeat_statuses.items())),
         "runner_identity_consistent": (
             configured_runner is None or not runner_ids or runner_ids == [configured_runner]
         ),
