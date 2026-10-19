@@ -132,6 +132,7 @@ class Runtime:
                 "run_timeout": self.run_timeout,
                 "max_result_bytes": self.max_result_bytes,
                 "probe_backoff": self.probe_backoff,
+                "runner_id": self.runner_id,
             })
             for original in self.store.snapshot(run_id)["operations"]:
                 if runtime_budget_exhausted():

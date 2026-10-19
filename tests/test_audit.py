@@ -26,6 +26,7 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,
         "duration_seconds": 0.75,
         "runtime_config": {"policy": "evidence", "max_result_bytes": 1000},
+        "runner_identity_consistent": True,
         "journal_sequence": None,
     }
     assert "secret" not in str(report) and "token" not in str(report)
@@ -38,6 +39,7 @@ def test_audit_reports_only_redacted_last_heartbeat_identity():
     ]})
     assert report["heartbeat_count"] == 2
     assert report["heartbeat_runner_count"] == 1
+    assert report["runner_identity_consistent"] is True
     assert report["last_heartbeat"] == {"operation_id": "op-2", "created_at": 12.0, "runner_id": None}
     assert "secret" not in str(report)
 

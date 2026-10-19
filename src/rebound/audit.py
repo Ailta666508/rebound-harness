@@ -36,6 +36,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         if event.get("kind") == "run.runtime_config" and isinstance(event.get("payload"), dict)
     ]
     runtime_config = runtime_events[-1] if runtime_events else None
+    configured_runner = runtime_config.get("runner_id") if isinstance(runtime_config, dict) else None
     uncertain_count = statuses.get("unknown", 0) + statuses.get("dispatched", 0)
     sequences = [event.get("seq") for event in events if isinstance(event.get("seq"), int)]
     sequence_check = None
@@ -65,6 +66,9 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
             "runner_id": last_heartbeat.get("payload", {}).get("runner_id") if isinstance(last_heartbeat.get("payload"), dict) else None,
         } if last_heartbeat else None),
         "heartbeat_runner_count": len(runner_ids),
+        "runner_identity_consistent": (
+            configured_runner is None or not runner_ids or runner_ids == [configured_runner]
+        ),
         "event_kinds": dict(sorted(Counter(str(event.get("kind", "unknown")) for event in events).items())),
         "recovery_decisions": dict(sorted(decision_counts.items())),
         "budget_events": dict(sorted(budget_events.items())),
