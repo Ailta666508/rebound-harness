@@ -17,7 +17,7 @@ class Runtime:
     def __init__(self, store: Store, tools: list[Tool], policy="evidence", max_attempts=3,
                  probe_budget=3, probe_delay=0.01, tool_timeout=10, evidence_ttl=30,
                  run_timeout: float | None = None, max_result_bytes: int = 1_000_000,
-                 probe_backoff: float = 1.0, fault_hook=None):
+                 probe_backoff: float = 1.0, fault_hook=None, runner_id: str | None = None):
         if policy not in POLICIES:
             raise ValueError(f"unknown policy: {policy}")
         if len({t.name for t in tools}) != len(tools):
@@ -28,6 +28,8 @@ class Runtime:
             raise ValueError("run_timeout must be positive when provided")
         if isinstance(max_result_bytes, bool) or not isinstance(max_result_bytes, int) or max_result_bytes <= 0:
             raise ValueError("max_result_bytes must be a positive integer")
+        if runner_id is not None and (not isinstance(runner_id, str) or not runner_id.strip() or len(runner_id) > 128):
+            raise ValueError("runner_id must be a non-empty string of at most 128 characters")
         self.store, self.tools, self.policy = store, {t.name: t for t in tools}, policy
         self.max_attempts, self.probe_budget = max_attempts, probe_budget
         self.probe_delay, self.tool_timeout, self.evidence_ttl = probe_delay, tool_timeout, evidence_ttl
@@ -35,7 +37,7 @@ class Runtime:
         self.run_timeout = run_timeout
         self.max_result_bytes = max_result_bytes
         self.fault_hook = fault_hook
-        self.runner_id = "runner_" + uuid.uuid4().hex
+        self.runner_id = runner_id.strip() if runner_id is not None else "runner_" + uuid.uuid4().hex
 
     def _hook(self, point, op_id):
         if self.fault_hook:

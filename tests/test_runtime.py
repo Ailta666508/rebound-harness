@@ -147,6 +147,13 @@ def test_probe_backoff_cannot_shrink_or_be_negative(tmp_path):
         Runtime(Store(tmp_path / "state.sqlite"), [], probe_backoff=0.5)
 
 
+def test_runner_identity_can_be_injected_for_operator_correlation(tmp_path):
+    runtime = Runtime(Store(tmp_path / "state.sqlite"), [], runner_id="worker-a")
+    assert runtime.runner_id == "worker-a"
+    with pytest.raises(ValueError, match="runner_id"):
+        Runtime(Store(tmp_path / "other.sqlite"), [], runner_id=" ")
+
+
 async def test_cancel_during_effect_does_not_report_completed(tmp_path):
     store = Store(tmp_path / "state.sqlite")
     run = store.create_run([Step(key="x", tool="write"), Step(key="y", tool="write")])
