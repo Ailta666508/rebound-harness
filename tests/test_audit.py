@@ -20,7 +20,7 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "schema_version": 1, "run_id": "run-1", "status": "needs_review", "title": "synthetic",
         "operation_count": 2, "operation_statuses": {"succeeded": 1, "unknown": 1},
         "uncertain_operation_count": 1,
-        "attempts": 3, "event_count": 4, "heartbeat_count": 0, "last_heartbeat": None, "heartbeat_runner_count": 0, "heartbeat_statuses": {}, "heartbeat_operations": {},
+        "attempts": 3, "event_count": 4, "heartbeat_count": 0, "last_heartbeat": None, "heartbeat_runner_count": 0, "heartbeat_statuses": {}, "heartbeat_operations": {}, "heartbeat_missing_operations": [],
         "event_kinds": {"budget.runtime_limits_call": 1, "recovery.decision": 2, "run.created": 1},
         "recovery_decisions": {"probe": 1, "review": 1}, "needs_review": True,
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,
@@ -44,6 +44,7 @@ def test_audit_reports_only_redacted_last_heartbeat_identity():
         "op-1": {"status": "unknown", "attempts": 0, "runner_id": None, "created_at": 10.0},
         "op-2": {"status": "planned", "attempts": 0, "runner_id": None, "created_at": 12.0},
     }
+    assert report["heartbeat_missing_operations"] == []
     assert report["runner_identity_consistent"] is True
     assert report["last_heartbeat"] == {"operation_id": "op-2", "created_at": 12.0, "runner_id": None}
     assert "secret" not in str(report)
@@ -59,3 +60,11 @@ def test_audit_detects_event_sequence_gaps_and_reordering():
         "first": 4, "last": 5, "monotonic": False,
         "contiguous": False, "missing_count": 0,
     }
+
+
+def test_audit_lists_operations_without_a_heartbeat():
+    report = build_audit_report({
+        "operations": [{"id": "op-seen"}, {"id": "op-missing"}],
+        "events": [{"kind": "run.heartbeat", "operation_id": "op-seen", "created_at": 1.0, "payload": {}}],
+    })
+    assert report["heartbeat_missing_operations"] == ["op-missing"]
