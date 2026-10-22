@@ -49,6 +49,17 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         operation.get("id") for operation in operations
         if isinstance(operation.get("id"), str) and operation["id"] not in heartbeat_operations
     )
+    heartbeat_status_mismatches = sorted([
+        {
+            "operation_id": operation["id"],
+            "operation_status": str(operation.get("status", "unknown")),
+            "heartbeat_status": heartbeat_operations[operation["id"]]["status"],
+        }
+        for operation in operations
+        if isinstance(operation.get("id"), str)
+        and operation["id"] in heartbeat_operations
+        and str(operation.get("status", "unknown")) != heartbeat_operations[operation["id"]]["status"]
+    ], key=lambda item: item["operation_id"])
     timestamps = [float(event["created_at"]) for event in events if isinstance(event.get("created_at"), (int, float))]
     duration_seconds = max(timestamps) - min(timestamps) if len(timestamps) >= 2 else 0.0
     runtime_events = [
@@ -89,6 +100,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "heartbeat_statuses": dict(sorted(heartbeat_statuses.items())),
         "heartbeat_operations": dict(sorted(heartbeat_operations.items())),
         "heartbeat_missing_operations": heartbeat_missing_operations,
+        "heartbeat_status_mismatches": heartbeat_status_mismatches,
         "runner_identity_consistent": (
             configured_runner is None or not runner_ids or runner_ids == [configured_runner]
         ),
