@@ -198,6 +198,12 @@ class Runtime:
                         continue
                     self._hook("after_effect", op["id"])
                     self.store.transition(op["id"], "succeeded", result=result)
+                    committed = next(item for item in self.store.snapshot(run_id)["operations"] if item["id"] == op["id"])
+                    self.store.event(run_id, "run.heartbeat", op["id"], {
+                        "runner_id": self.runner_id,
+                        "status": committed["status"],
+                        "attempts": committed["attempts"],
+                    })
                     self._hook("after_commit", op["id"])
                     break
             self.store.set_status(run_id, "completed")
