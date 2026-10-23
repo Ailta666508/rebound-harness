@@ -20,7 +20,7 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "schema_version": 1, "run_id": "run-1", "status": "needs_review", "title": "synthetic",
         "operation_count": 2, "operation_statuses": {"succeeded": 1, "unknown": 1},
         "uncertain_operation_count": 1,
-        "attempts": 3, "event_count": 4, "heartbeat_count": 0, "last_heartbeat": None, "heartbeat_runner_count": 0, "heartbeat_statuses": {}, "heartbeat_operations": {}, "heartbeat_missing_operations": [], "heartbeat_status_mismatches": [],
+        "attempts": 3, "event_count": 4, "heartbeat_count": 0, "last_heartbeat": None, "heartbeat_runner_count": 0, "heartbeat_statuses": {}, "heartbeat_operations": {}, "heartbeat_missing_operations": [], "heartbeat_status_mismatches": [], "heartbeat_attempt_mismatches": [],
         "event_kinds": {"budget.runtime_limits_call": 1, "recovery.decision": 2, "run.created": 1},
         "recovery_decisions": {"probe": 1, "review": 1}, "needs_review": True,
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,
@@ -77,4 +77,15 @@ def test_audit_flags_heartbeat_status_drift():
     })
     assert report["heartbeat_status_mismatches"] == [{
         "operation_id": "op-1", "operation_status": "succeeded", "heartbeat_status": "unknown",
+    }]
+
+
+def test_audit_flags_heartbeat_attempt_drift():
+    report = build_audit_report({
+        "operations": [{"id": "op-1", "status": "succeeded", "attempts": 3}],
+        "events": [{"kind": "run.heartbeat", "operation_id": "op-1", "created_at": 1.0,
+                    "payload": {"status": "succeeded", "attempts": 2}}],
+    })
+    assert report["heartbeat_attempt_mismatches"] == [{
+        "operation_id": "op-1", "operation_attempts": 3, "heartbeat_attempts": 2,
     }]
