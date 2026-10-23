@@ -195,6 +195,11 @@ class Runtime:
                         # Unknown is intentionally conservative. Exceptions do not prove non-execution.
                         self.store.transition(op["id"], "unknown", error=type(exc).__name__)
                         op = next(o for o in self.store.snapshot(run_id)["operations"] if o["id"] == op["id"])
+                        self.store.event(run_id, "run.heartbeat", op["id"], {
+                            "runner_id": self.runner_id,
+                            "status": op["status"],
+                            "attempts": op["attempts"],
+                        })
                         continue
                     self._hook("after_effect", op["id"])
                     self.store.transition(op["id"], "succeeded", result=result)

@@ -92,6 +92,18 @@ async def test_retry_budget_and_stable_identity(tmp_path):
     assert verify_snapshot(snap)["valid"]
 
 
+async def test_unknown_transition_journals_heartbeat_for_recovery_visibility(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="x", tool="read")])
+
+    async def execute(_op, _args):
+        raise TimeoutError()
+
+    snap = await Runtime(store, [Tool("read", ToolKind.READ_ONLY, execute)], max_attempts=1).run(run)
+    heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
+    assert heartbeats[-1]["payload"] == {"runner_id": snap["events"][1]["payload"]["runner_id"], "status": "unknown", "attempts": 1}
+
+
 async def test_run_timeout_stops_before_next_operation_and_records_budget_event(tmp_path):
     store = Store(tmp_path / "state.sqlite")
     run = store.create_run([Step(key="one", tool="read"), Step(key="two", tool="read")])
