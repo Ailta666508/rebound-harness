@@ -101,7 +101,28 @@ async def test_unknown_transition_journals_heartbeat_for_recovery_visibility(tmp
 
     snap = await Runtime(store, [Tool("read", ToolKind.READ_ONLY, execute)], max_attempts=1).run(run)
     heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
-    assert heartbeats[-1]["payload"] == {"runner_id": snap["events"][1]["payload"]["runner_id"], "status": "unknown", "attempts": 1}
+    config = next(event for event in snap["events"] if event["kind"] == "run.runtime_config")
+    assert heartbeats[-1]["payload"] == {"runner_id": config["payload"]["runner_id"], "status": "unknown", "attempts": 1}
+
+
+async def test_reused_evidence_journals_a_succeeded_heartbeat(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="x", tool="write")])
+    operation = store.snapshot(run)["operations"][0]
+    store.transition(operation["id"], "dispatched", increment=True)
+    store.transition(operation["id"], "unknown", error="lost acknowledgement")
+
+    async def execute(_op, _args):
+        raise AssertionError("committed effects must be reused")
+
+    async def probe(op_id):
+        now = time.time()
+        return Evidence(operation_id=op_id, status="committed", result={"receipt": op_id},
+                        authoritative=True, observed_at=now, valid_until=now + 60, source="receipt")
+
+    snap = await Runtime(store, [Tool("write", ToolKind.RECONCILABLE, execute, probe)], runner_id="worker-a").run(run)
+    heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
+    assert heartbeats[-1]["payload"] == {"runner_id": "worker-a", "status": "succeeded", "attempts": 1}
 
 
 async def test_run_timeout_stops_before_next_operation_and_records_budget_event(tmp_path):
@@ -112,12 +133,13 @@ async def test_run_timeout_stops_before_next_operation_and_records_budget_event(
         return {"ok": True}
     snap = await Runtime(
         store, [Tool("read", ToolKind.READ_ONLY, execute)], run_timeout=0.001,
+        runner_id="worker-timeout",
     ).run(run)
     assert snap["status"] == "needs_review"
     assert snap["operations"][0]["status"] == "planned"
     assert any(event["kind"] == "budget.runtime_exhausted" for event in snap["events"])
     config = next(event for event in snap["events"] if event["kind"] == "run.runtime_config")
-    assert config["payload"] == {"policy": "evidence", "max_attempts": 3, "probe_budget": 3, "tool_timeout": 10, "run_timeout": 0.001, "max_result_bytes": 1_000_000, "probe_backoff": 1.0}
+    assert config["payload"] == {"policy": "evidence", "max_attempts": 3, "probe_budget": 3, "tool_timeout": 10, "run_timeout": 0.001, "max_result_bytes": 1_000_000, "probe_backoff": 1.0, "runner_id": "worker-timeout"}
 
 
 async def test_run_timeout_also_bounds_an_in_flight_tool_call(tmp_path):

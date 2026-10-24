@@ -164,6 +164,12 @@ class Runtime:
                             self.store.transition(op["id"], "unknown", error="runner stopped before result commit")
                         action = await self._recover(run_id, op, tool)
                         if action == "done":
+                            op = next(o for o in self.store.snapshot(run_id)["operations"] if o["id"] == op["id"])
+                            self.store.event(run_id, "run.heartbeat", op["id"], {
+                                "runner_id": self.runner_id,
+                                "status": op["status"],
+                                "attempts": op["attempts"],
+                            })
                             break
                         if action != "retry":
                             self.store.set_status(run_id, "needs_review")
