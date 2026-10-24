@@ -71,6 +71,20 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         and operation["id"] in heartbeat_operations
         and int(operation.get("attempts", 0)) != int(heartbeat_operations[operation["id"]].get("attempts", 0))
     ], key=lambda item: item["operation_id"])
+    identified_operation_count = sum(
+        1 for operation in operations if isinstance(operation.get("id"), str)
+    )
+    heartbeat_health = {
+        "coverage": round(
+            (identified_operation_count - len(heartbeat_missing_operations)) / identified_operation_count,
+            6,
+        ) if identified_operation_count else 1.0,
+        "status_mismatch_count": len(heartbeat_status_mismatches),
+        "attempt_mismatch_count": len(heartbeat_attempt_mismatches),
+        "healthy": not (
+            heartbeat_missing_operations or heartbeat_status_mismatches or heartbeat_attempt_mismatches
+        ),
+    }
     timestamps = [float(event["created_at"]) for event in events if isinstance(event.get("created_at"), (int, float))]
     duration_seconds = max(timestamps) - min(timestamps) if len(timestamps) >= 2 else 0.0
     runtime_events = [
@@ -113,6 +127,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "heartbeat_missing_operations": heartbeat_missing_operations,
         "heartbeat_status_mismatches": heartbeat_status_mismatches,
         "heartbeat_attempt_mismatches": heartbeat_attempt_mismatches,
+        "heartbeat_health": heartbeat_health,
         "runner_identity_consistent": (
             configured_runner is None or not runner_ids or runner_ids == [configured_runner]
         ),
