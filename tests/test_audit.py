@@ -57,8 +57,8 @@ def test_audit_detects_event_sequence_gaps_and_reordering():
         {"seq": 5, "kind": "run.completed", "created_at": 3.0, "payload": {}},
     ]})
     assert report["journal_sequence"] == {
-        "first": 4, "last": 5, "monotonic": False,
-        "contiguous": False, "missing_count": 0,
+        "first": 4, "last": 6, "monotonic": False,
+        "contiguous": False, "missing_count": 0, "duplicate_count": 0, "missing": [],
     }
 
 

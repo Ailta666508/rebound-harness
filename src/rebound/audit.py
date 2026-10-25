@@ -97,13 +97,17 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
     sequences = [event.get("seq") for event in events if isinstance(event.get("seq"), int)]
     sequence_check = None
     if sequences:
-        expected = list(range(sequences[0], sequences[-1] + 1))
+        first, last = min(sequences), max(sequences)
+        expected = list(range(first, last + 1))
+        missing = sorted(set(expected) - set(sequences))
         sequence_check = {
-            "first": sequences[0],
-            "last": sequences[-1],
+            "first": first,
+            "last": last,
             "monotonic": all(left < right for left, right in zip(sequences, sequences[1:])),
             "contiguous": sequences == expected,
-            "missing_count": max(0, len(expected) - len(set(sequences))),
+            "missing_count": len(missing),
+            "duplicate_count": len(sequences) - len(set(sequences)),
+            "missing": missing,
         }
     return {
         "schema_version": 1,
