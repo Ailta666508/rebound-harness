@@ -195,6 +195,12 @@ class Runtime:
                             raise ValueError(f"tool result must be a JSON object under {self.max_result_bytes} bytes")
                     except ToolRejected as exc:
                         self.store.transition(op["id"], "failed", error=str(exc)[:1000])
+                        failed = next(item for item in self.store.snapshot(run_id)["operations"] if item["id"] == op["id"])
+                        self.store.event(run_id, "run.heartbeat", op["id"], {
+                            "runner_id": self.runner_id,
+                            "status": failed["status"],
+                            "attempts": failed["attempts"],
+                        })
                         self.store.set_status(run_id, "failed")
                         return self.store.snapshot(run_id)
                     except Exception as exc:

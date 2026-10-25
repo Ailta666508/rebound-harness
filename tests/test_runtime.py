@@ -11,6 +11,7 @@ from hypothesis import strategies as st
 
 from rebound import Evidence, Runtime, Step, Store, Tool, ToolKind
 from rebound.demo import DemoService
+from rebound.tools import ToolRejected
 from rebound.verification import verify_snapshot
 
 
@@ -123,6 +124,18 @@ async def test_reused_evidence_journals_a_succeeded_heartbeat(tmp_path):
     snap = await Runtime(store, [Tool("write", ToolKind.RECONCILABLE, execute, probe)], runner_id="worker-a").run(run)
     heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
     assert heartbeats[-1]["payload"] == {"runner_id": "worker-a", "status": "succeeded", "attempts": 1}
+
+
+async def test_rejected_tool_journals_a_failed_heartbeat(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="x", tool="write")])
+
+    async def reject(_op, _args):
+        raise ToolRejected("provider rejected request")
+
+    snap = await Runtime(store, [Tool("write", ToolKind.OPAQUE, reject)], runner_id="worker-b").run(run)
+    heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
+    assert heartbeats[-1]["payload"] == {"runner_id": "worker-b", "status": "failed", "attempts": 1}
 
 
 async def test_run_timeout_stops_before_next_operation_and_records_budget_event(tmp_path):
