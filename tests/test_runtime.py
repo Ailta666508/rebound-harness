@@ -138,6 +138,16 @@ async def test_rejected_tool_journals_a_failed_heartbeat(tmp_path):
     assert heartbeats[-1]["payload"] == {"runner_id": "worker-b", "status": "failed", "attempts": 1}
 
 
+async def test_denied_tool_journals_a_failed_heartbeat(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="x", tool="write")])
+    async def execute(_op, _args):
+        return {"ok": True}
+    snap = await Runtime(store, [Tool("write", ToolKind.OPAQUE, execute, permission="deny")], runner_id="worker-c").run(run)
+    heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
+    assert heartbeats[-1]["payload"] == {"runner_id": "worker-c", "status": "failed", "attempts": 0}
+
+
 async def test_run_timeout_stops_before_next_operation_and_records_budget_event(tmp_path):
     store = Store(tmp_path / "state.sqlite")
     run = store.create_run([Step(key="one", tool="read"), Step(key="two", tool="read")])

@@ -148,6 +148,11 @@ class Runtime:
                 tool = self.tools.get(op["tool"])
                 if tool is None or tool.permission == "deny":
                     self.store.event(run_id, "tool.denied", op["id"], {"reason": "missing or denied tool"})
+                    self.store.event(run_id, "run.heartbeat", op["id"], {
+                        "runner_id": self.runner_id,
+                        "status": "failed",
+                        "attempts": op["attempts"],
+                    })
                     self.store.set_status(run_id, "failed")
                     return self.store.snapshot(run_id)
                 if tool.permission == "ask" and not op["approved"]:

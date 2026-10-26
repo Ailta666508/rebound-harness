@@ -26,6 +26,7 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,
         "duration_seconds": 0.75,
         "runtime_config": {"policy": "evidence", "max_result_bytes": 1000},
+        "heartbeat_runner_mismatches": [],
         "runner_identity_consistent": True,
         "journal_sequence": None,
     }
@@ -48,6 +49,18 @@ def test_audit_reports_only_redacted_last_heartbeat_identity():
     assert report["runner_identity_consistent"] is True
     assert report["last_heartbeat"] == {"operation_id": "op-2", "created_at": 12.0, "runner_id": None}
     assert "secret" not in str(report)
+
+
+def test_audit_reports_runner_identity_drift():
+    report = build_audit_report({
+        "operations": [],
+        "events": [
+            {"kind": "run.runtime_config", "payload": {"runner_id": "worker-a"}},
+            {"kind": "run.heartbeat", "operation_id": "op-1", "payload": {"runner_id": "worker-b"}},
+        ],
+    })
+    assert report["heartbeat_runner_mismatches"] == ["worker-b"]
+    assert report["runner_identity_consistent"] is False
 
 
 def test_audit_detects_event_sequence_gaps_and_reordering():

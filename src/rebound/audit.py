@@ -93,6 +93,13 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
     ]
     runtime_config = runtime_events[-1] if runtime_events else None
     configured_runner = runtime_config.get("runner_id") if isinstance(runtime_config, dict) else None
+    heartbeat_runner_mismatches = sorted({
+        str(event.get("payload", {}).get("runner_id"))
+        for event in heartbeats
+        if configured_runner is not None
+        and isinstance(event.get("payload"), dict)
+        and event["payload"].get("runner_id") != configured_runner
+    })
     uncertain_count = statuses.get("unknown", 0) + statuses.get("dispatched", 0)
     sequences = [event.get("seq") for event in events if isinstance(event.get("seq"), int)]
     sequence_check = None
@@ -132,8 +139,9 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "heartbeat_status_mismatches": heartbeat_status_mismatches,
         "heartbeat_attempt_mismatches": heartbeat_attempt_mismatches,
         "heartbeat_health": heartbeat_health,
+        "heartbeat_runner_mismatches": heartbeat_runner_mismatches,
         "runner_identity_consistent": (
-            configured_runner is None or not runner_ids or runner_ids == [configured_runner]
+            not heartbeat_runner_mismatches
         ),
         "event_kinds": dict(sorted(Counter(str(event.get("kind", "unknown")) for event in events).items())),
         "recovery_decisions": dict(sorted(decision_counts.items())),
