@@ -208,6 +208,18 @@ class Runtime:
                         })
                         self.store.set_status(run_id, "failed")
                         return self.store.snapshot(run_id)
+                    except asyncio.TimeoutError:
+                        self.store.transition(op["id"], "unknown", error="TimeoutError")
+                        self.store.event(run_id, "tool.timeout", op["id"], {
+                            "timeout_seconds": execution_timeout(op["id"]),
+                        })
+                        op = next(o for o in self.store.snapshot(run_id)["operations"] if o["id"] == op["id"])
+                        self.store.event(run_id, "run.heartbeat", op["id"], {
+                            "runner_id": self.runner_id,
+                            "status": op["status"],
+                            "attempts": op["attempts"],
+                        })
+                        continue
                     except Exception as exc:
                         # Unknown is intentionally conservative. Exceptions do not prove non-execution.
                         self.store.transition(op["id"], "unknown", error=type(exc).__name__)
