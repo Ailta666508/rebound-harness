@@ -45,6 +45,13 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
                 "runner_id": payload.get("runner_id"),
                 "created_at": event.get("created_at"),
             }
+    heartbeat_duplicate_operations = sorted(
+        operation_id for operation_id in {
+            event.get("operation_id") for event in heartbeats
+            if isinstance(event.get("operation_id"), str)
+        }
+        if sum(1 for event in heartbeats if event.get("operation_id") == operation_id) > 1
+    )
     heartbeat_missing_operations = sorted(
         operation.get("id") for operation in operations
         if isinstance(operation.get("id"), str) and operation["id"] not in heartbeat_operations
@@ -135,6 +142,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "heartbeat_runner_count": len(runner_ids),
         "heartbeat_statuses": dict(sorted(heartbeat_statuses.items())),
         "heartbeat_operations": dict(sorted(heartbeat_operations.items())),
+        "heartbeat_duplicate_operations": heartbeat_duplicate_operations,
         "heartbeat_missing_operations": heartbeat_missing_operations,
         "heartbeat_status_mismatches": heartbeat_status_mismatches,
         "heartbeat_attempt_mismatches": heartbeat_attempt_mismatches,
