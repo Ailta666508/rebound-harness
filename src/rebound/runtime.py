@@ -177,6 +177,12 @@ class Runtime:
                             })
                             break
                         if action != "retry":
+                            self.store.event(run_id, "run.heartbeat", op["id"], {
+                                "runner_id": self.runner_id,
+                                "status": op["status"],
+                                "attempts": op["attempts"],
+                                "recovery_action": action,
+                            })
                             self.store.set_status(run_id, "needs_review")
                             return self.store.snapshot(run_id)
                     if op["attempts"] >= self.max_attempts:
