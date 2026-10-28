@@ -176,6 +176,13 @@ class Runtime:
                                 "attempts": op["attempts"],
                             })
                             break
+                        if action == "retry":
+                            self.store.event(run_id, "run.heartbeat", op["id"], {
+                                "runner_id": self.runner_id,
+                                "status": op["status"],
+                                "attempts": op["attempts"],
+                                "recovery_action": "retry",
+                            })
                         if action != "retry":
                             self.store.event(run_id, "run.heartbeat", op["id"], {
                                 "runner_id": self.runner_id,

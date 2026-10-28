@@ -103,7 +103,7 @@ async def test_unknown_transition_journals_heartbeat_for_recovery_visibility(tmp
     snap = await Runtime(store, [Tool("read", ToolKind.READ_ONLY, execute)], max_attempts=1).run(run)
     heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
     config = next(event for event in snap["events"] if event["kind"] == "run.runtime_config")
-    assert heartbeats[-1]["payload"] == {"runner_id": config["payload"]["runner_id"], "status": "unknown", "attempts": 1}
+    assert heartbeats[-1]["payload"] == {"runner_id": config["payload"]["runner_id"], "status": "unknown", "attempts": 1, "recovery_action": "retry"}
 
 
 async def test_reused_evidence_journals_a_succeeded_heartbeat(tmp_path):
@@ -203,6 +203,22 @@ async def test_recovery_review_journals_final_operation_heartbeat(tmp_path):
     assert snap["status"] == "needs_review"
     heartbeat = [event for event in snap["events"] if event["kind"] == "run.heartbeat"][-1]
     assert heartbeat["payload"]["recovery_action"] == "review"
+
+
+async def test_recovery_retry_journals_retry_heartbeat(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="one", tool="read")])
+    calls = 0
+    async def execute(_op, _args):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise RuntimeError("lost acknowledgement")
+        return {"ok": True}
+    snap = await Runtime(store, [Tool("read", ToolKind.READ_ONLY, execute)], probe_budget=1, probe_delay=0).run(run)
+    assert snap["status"] == "completed"
+    assert any(event["payload"].get("recovery_action") == "retry"
+               for event in snap["events"] if event["kind"] == "run.heartbeat")
 
 
 def test_run_timeout_must_be_positive(tmp_path):
