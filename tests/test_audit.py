@@ -20,7 +20,7 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "schema_version": 1, "run_id": "run-1", "status": "needs_review", "title": "synthetic",
         "operation_count": 2, "operation_statuses": {"succeeded": 1, "unknown": 1},
         "uncertain_operation_count": 1,
-        "attempts": 3, "event_count": 5, "heartbeat_count": 0, "last_heartbeat": None, "heartbeat_runner_count": 0, "heartbeat_statuses": {}, "heartbeat_operations": {}, "heartbeat_duplicate_operations": [], "heartbeat_missing_operations": [], "heartbeat_status_mismatches": [], "heartbeat_attempt_mismatches": [], "heartbeat_health": {"coverage": 1.0, "status_mismatch_count": 0, "attempt_mismatch_count": 0, "healthy": True},
+        "attempts": 3, "event_count": 5, "heartbeat_count": 0, "last_heartbeat": None, "heartbeat_runner_count": 0, "heartbeat_statuses": {}, "heartbeat_operations": {}, "heartbeat_duplicate_operations": [], "heartbeat_duplicate_counts": {}, "heartbeat_missing_operations": [], "heartbeat_status_mismatches": [], "heartbeat_attempt_mismatches": [], "heartbeat_health": {"coverage": 1.0, "status_mismatch_count": 0, "attempt_mismatch_count": 0, "healthy": True},
         "event_kinds": {"budget.runtime_limits_call": 1, "recovery.decision": 2, "run.created": 1, "run.runtime_config": 1},
         "recovery_decisions": {"probe": 1, "review": 1}, "needs_review": True,
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,
@@ -69,6 +69,7 @@ def test_audit_reports_duplicate_heartbeat_operations():
         {"kind": "run.heartbeat", "operation_id": "op-1", "payload": {}},
     ]})
     assert report["heartbeat_duplicate_operations"] == ["op-1"]
+    assert report["heartbeat_duplicate_counts"] == {"op-1": 2}
 
 
 def test_audit_detects_event_sequence_gaps_and_reordering():

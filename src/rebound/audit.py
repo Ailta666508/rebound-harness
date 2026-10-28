@@ -52,6 +52,10 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         }
         if sum(1 for event in heartbeats if event.get("operation_id") == operation_id) > 1
     )
+    heartbeat_duplicate_counts = {
+        operation_id: sum(1 for event in heartbeats if event.get("operation_id") == operation_id)
+        for operation_id in heartbeat_duplicate_operations
+    }
     heartbeat_missing_operations = sorted(
         operation.get("id") for operation in operations
         if isinstance(operation.get("id"), str) and operation["id"] not in heartbeat_operations
@@ -143,6 +147,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "heartbeat_statuses": dict(sorted(heartbeat_statuses.items())),
         "heartbeat_operations": dict(sorted(heartbeat_operations.items())),
         "heartbeat_duplicate_operations": heartbeat_duplicate_operations,
+        "heartbeat_duplicate_counts": heartbeat_duplicate_counts,
         "heartbeat_missing_operations": heartbeat_missing_operations,
         "heartbeat_status_mismatches": heartbeat_status_mismatches,
         "heartbeat_attempt_mismatches": heartbeat_attempt_mismatches,
