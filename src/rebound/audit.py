@@ -96,7 +96,12 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
             heartbeat_missing_operations or heartbeat_status_mismatches or heartbeat_attempt_mismatches
         ),
     }
-    timestamps = [float(event["created_at"]) for event in events if isinstance(event.get("created_at"), (int, float))]
+    timestamps = [
+        float(event["created_at"])
+        for event in events
+        if isinstance(event.get("created_at"), (int, float))
+        and not isinstance(event.get("created_at"), bool)
+    ]
     duration_seconds = max(timestamps) - min(timestamps) if len(timestamps) >= 2 else 0.0
     runtime_events = [
         event.get("payload") for event in events

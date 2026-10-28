@@ -72,6 +72,14 @@ def test_audit_reports_duplicate_heartbeat_operations():
     assert report["heartbeat_duplicate_counts"] == {"op-1": 2}
 
 
+def test_audit_ignores_non_numeric_event_timestamps():
+    report = build_audit_report({"events": [
+        {"kind": "run.created", "created_at": "unknown", "payload": {}},
+        {"kind": "run.completed", "created_at": True, "payload": {}},
+    ]})
+    assert report["duration_seconds"] == 0.0
+
+
 def test_audit_detects_event_sequence_gaps_and_reordering():
     report = build_audit_report({"events": [
         {"seq": 4, "kind": "run.created", "created_at": 1.0, "payload": {}},
