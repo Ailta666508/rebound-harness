@@ -123,7 +123,7 @@ async def test_reused_evidence_journals_a_succeeded_heartbeat(tmp_path):
 
     snap = await Runtime(store, [Tool("write", ToolKind.RECONCILABLE, execute, probe)], runner_id="worker-a").run(run)
     heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
-    assert heartbeats[-1]["payload"] == {"runner_id": "worker-a", "status": "succeeded", "attempts": 1}
+    assert heartbeats[-1]["payload"] == {"runner_id": "worker-a", "status": "succeeded", "attempts": 1, "recovery_action": "reuse"}
 
 
 async def test_rejected_tool_journals_a_failed_heartbeat(tmp_path):
@@ -218,6 +218,22 @@ async def test_recovery_retry_journals_retry_heartbeat(tmp_path):
     snap = await Runtime(store, [Tool("read", ToolKind.READ_ONLY, execute)], probe_budget=1, probe_delay=0).run(run)
     assert snap["status"] == "completed"
     assert any(event["payload"].get("recovery_action") == "retry"
+               for event in snap["events"] if event["kind"] == "run.heartbeat")
+
+
+async def test_recovery_reuse_journals_reuse_heartbeat(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="one", tool="read")])
+    async def execute(_op, _args):
+        raise RuntimeError("lost acknowledgement")
+    async def probe(op_id):
+        now = time.time()
+        return {"operation_id": op_id, "status": "committed", "result": {"ok": True},
+                "authoritative": True, "observed_at": now, "valid_until": now + 60,
+                "source": "synthetic"}
+    snap = await Runtime(store, [Tool("read", ToolKind.READ_ONLY, execute, probe)], probe_delay=0).run(run)
+    assert snap["status"] == "completed"
+    assert any(event["payload"].get("recovery_action") == "reuse"
                for event in snap["events"] if event["kind"] == "run.heartbeat")
 
 

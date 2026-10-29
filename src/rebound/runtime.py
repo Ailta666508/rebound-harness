@@ -174,6 +174,7 @@ class Runtime:
                                 "runner_id": self.runner_id,
                                 "status": op["status"],
                                 "attempts": op["attempts"],
+                                "recovery_action": "reuse",
                             })
                             break
                         if action == "retry":
