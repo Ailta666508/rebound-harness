@@ -80,6 +80,11 @@ def test_audit_ignores_non_numeric_event_timestamps():
     assert report["duration_seconds"] == 0.0
 
 
+def test_audit_ignores_boolean_journal_sequence_values():
+    report = build_audit_report({"events": [{"seq": True, "kind": "run.created", "payload": {}}]})
+    assert report["journal_sequence"] is None
+
+
 def test_audit_detects_event_sequence_gaps_and_reordering():
     report = build_audit_report({"events": [
         {"seq": 4, "kind": "run.created", "created_at": 1.0, "payload": {}},

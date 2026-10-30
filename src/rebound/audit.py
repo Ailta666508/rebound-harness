@@ -117,7 +117,7 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         and event["payload"].get("runner_id") != configured_runner
     })
     uncertain_count = statuses.get("unknown", 0) + statuses.get("dispatched", 0)
-    sequences = [event.get("seq") for event in events if isinstance(event.get("seq"), int)]
+    sequences = [event.get("seq") for event in events if isinstance(event.get("seq"), int) and not isinstance(event.get("seq"), bool)]
     sequence_check = None
     if sequences:
         first, last = min(sequences), max(sequences)
