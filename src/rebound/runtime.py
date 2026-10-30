@@ -156,6 +156,11 @@ class Runtime:
                     self.store.set_status(run_id, "failed")
                     return self.store.snapshot(run_id)
                 if tool.permission == "ask" and not op["approved"]:
+                    self.store.event(run_id, "run.heartbeat", op["id"], {
+                        "runner_id": self.runner_id,
+                        "status": "awaiting_approval",
+                        "attempts": op["attempts"],
+                    })
                     self.store.set_status(run_id, "awaiting_approval")
                     return self.store.snapshot(run_id)
                 if op["status"] == "failed":

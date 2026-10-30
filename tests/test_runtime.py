@@ -237,6 +237,17 @@ async def test_recovery_reuse_journals_reuse_heartbeat(tmp_path):
                for event in snap["events"] if event["kind"] == "run.heartbeat")
 
 
+async def test_approval_wait_journals_awaiting_approval_heartbeat(tmp_path):
+    store = Store(tmp_path / "state.sqlite")
+    run = store.create_run([Step(key="one", tool="write")])
+    async def execute(_op, _args):
+        return {"ok": True}
+    snap = await Runtime(store, [Tool("write", ToolKind.OPAQUE, execute, permission="ask")]).run(run)
+    assert snap["status"] == "awaiting_approval"
+    heartbeats = [event for event in snap["events"] if event["kind"] == "run.heartbeat"]
+    assert heartbeats[-1]["payload"]["status"] == "awaiting_approval"
+
+
 def test_run_timeout_must_be_positive(tmp_path):
     with pytest.raises(ValueError, match="run_timeout"):
         Runtime(Store(tmp_path / "state.sqlite"), [], run_timeout=0)
