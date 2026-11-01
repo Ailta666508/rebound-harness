@@ -24,6 +24,7 @@ def test_audit_report_is_redacted_and_counts_recovery_decisions():
         "event_kinds": {"budget.runtime_limits_call": 1, "recovery.decision": 2, "run.created": 1, "run.runtime_config": 1},
         "recovery_decisions": {"probe": 1, "review": 1}, "needs_review": True,
         "budget_events": {"budget.runtime_limits_call": 1}, "budget_exhausted": True,
+            "tool_timeout_count": 0, "tool_timeout_operations": {},
         "duration_seconds": 0.75,
         "runtime_config": {"policy": "evidence", "max_result_bytes": 1000},
         "heartbeat_runner_mismatches": [],
@@ -83,6 +84,17 @@ def test_audit_ignores_non_numeric_event_timestamps():
 def test_audit_ignores_boolean_journal_sequence_values():
     report = build_audit_report({"events": [{"seq": True, "kind": "run.created", "payload": {}}]})
     assert report["journal_sequence"] is None
+
+
+def test_audit_counts_tool_timeouts_by_operation_without_exposing_payloads():
+    report = build_audit_report({"operations": [], "events": [
+        {"kind": "tool.timeout", "operation_id": "op-1", "payload": {"timeout_seconds": 1}},
+        {"kind": "tool.timeout", "operation_id": "op-1", "payload": {"timeout_seconds": 2}},
+        {"kind": "tool.timeout", "operation_id": "op-2", "payload": {"secret": "hidden"}},
+    ]})
+    assert report["tool_timeout_count"] == 3
+    assert report["tool_timeout_operations"] == {"op-1": 2, "op-2": 1}
+    assert "secret" not in report
 
 
 def test_audit_detects_event_sequence_gaps_and_reordering():

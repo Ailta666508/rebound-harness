@@ -21,6 +21,11 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         str(event.get("kind")) for event in events
         if str(event.get("kind", "")).startswith("budget.")
     )
+    timeout_events = [
+        event for event in events
+        if event.get("kind") == "tool.timeout" and isinstance(event.get("operation_id"), str)
+    ]
+    timeout_operations = Counter(event["operation_id"] for event in timeout_events)
     heartbeat_count = sum(1 for event in events if event.get("kind") == "run.heartbeat")
     heartbeats = [event for event in events if event.get("kind") == "run.heartbeat"]
     last_heartbeat = heartbeats[-1] if heartbeats else None
@@ -165,6 +170,8 @@ def build_audit_report(snapshot: dict[str, Any]) -> dict[str, Any]:
         "recovery_decisions": dict(sorted(decision_counts.items())),
         "budget_events": dict(sorted(budget_events.items())),
         "budget_exhausted": sum(budget_events.values()) > 0,
+        "tool_timeout_count": len(timeout_events),
+        "tool_timeout_operations": dict(sorted(timeout_operations.items())),
         "duration_seconds": round(max(0.0, duration_seconds), 6),
         "runtime_config": runtime_config,
         "journal_sequence": sequence_check,
