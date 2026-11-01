@@ -211,9 +211,10 @@ class Runtime:
                             return self.store.snapshot(run_id)
                         raise
                     self._hook("before_dispatch", op["id"])
+                    call_timeout = execution_timeout(op["id"])
                     try:
                         result = await asyncio.wait_for(
-                            tool.execute(op["id"], op["arguments"]), execution_timeout(op["id"]),
+                            tool.execute(op["id"], op["arguments"]), call_timeout,
                         )
                         if not isinstance(result, dict) or len(encode(result).encode("utf-8")) > self.max_result_bytes:
                             raise ValueError(f"tool result must be a JSON object under {self.max_result_bytes} bytes")
@@ -230,7 +231,7 @@ class Runtime:
                     except asyncio.TimeoutError:
                         self.store.transition(op["id"], "unknown", error="TimeoutError")
                         self.store.event(run_id, "tool.timeout", op["id"], {
-                            "timeout_seconds": execution_timeout(op["id"]),
+                            "timeout_seconds": call_timeout,
                         })
                         op = next(o for o in self.store.snapshot(run_id)["operations"] if o["id"] == op["id"])
                         self.store.event(run_id, "run.heartbeat", op["id"], {

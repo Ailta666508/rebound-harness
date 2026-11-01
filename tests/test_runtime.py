@@ -177,6 +177,8 @@ async def test_run_timeout_also_bounds_an_in_flight_tool_call(tmp_path):
     assert snap["status"] == "needs_review"
     assert snap["operations"][0]["status"] == "unknown"
     assert any(event["kind"] == "budget.runtime_limits_call" for event in snap["events"])
+    timeout = next(event for event in snap["events"] if event["kind"] == "tool.timeout")
+    assert timeout["payload"]["timeout_seconds"] <= 0.02
 
 
 async def test_tool_timeout_records_explicit_operational_event(tmp_path):
